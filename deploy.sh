@@ -78,6 +78,16 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
+# Pull latest changes from GitHub
+echo ""
+echo "🔄 Pulling latest changes from GitHub..."
+if ! git pull &> /dev/null; then
+    echo "⚠️  Git pull encountered issues (continuing anyway)"
+else
+    echo "  ✓ Latest code pulled"
+fi
+echo ""
+
 source .env
 
 if [ -z "$TUNNEL_TOKEN" ]; then
