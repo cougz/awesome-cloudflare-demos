@@ -2,6 +2,15 @@
 
 set -e
 
+# Determine which docker compose command to use
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+elif docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+else
+    DOCKER_COMPOSE="docker-compose"
+fi
+
 echo "🚀 Cloudflare Demos Deployment"
 echo "======================================"
 echo ""
@@ -60,13 +69,13 @@ echo "  ✓ TUNNEL_TOKEN configured"
 # Deploy
 echo ""
 echo "🛑 Stopping existing containers..."
-docker-compose down 2>/dev/null || true
+$DOCKER_COMPOSE down 2>/dev/null || true
 
 echo "🔨 Building containers..."
-docker-compose build --no-cache
+$DOCKER_COMPOSE build --no-cache
 
 echo "🚀 Starting services..."
-docker-compose up -d
+$DOCKER_COMPOSE up -d
 
 # Wait
 echo "⏳ Waiting for services to start..."
@@ -80,7 +89,7 @@ if docker ps | grep -q "cf-demos-nginx"; then
     echo "  ✓ Nginx running"
 else
     echo "  ❌ Nginx failed"
-    docker-compose logs nginx
+    $DOCKER_COMPOSE logs nginx
     exit 1
 fi
 
@@ -88,7 +97,7 @@ if docker ps | grep -q "cf-demos-tunnel"; then
     echo "  ✓ Tunnel running"
 else
     echo "  ❌ Tunnel failed"
-    docker-compose logs cloudflared
+    $DOCKER_COMPOSE logs cloudflared
     exit 1
 fi
 
@@ -128,11 +137,11 @@ echo "🌐 Cloudflare Tunnel: Running (check your Cloudflare dashboard for URL)"
 echo "🔍 Local: http://localhost:8080"
 echo ""
 echo "📝 To view logs:"
-echo "   docker-compose logs -f"
+echo "   $DOCKER_COMPOSE logs -f"
 echo ""
 echo "🔄 To restart:"
-echo "   docker-compose restart"
+echo "   $DOCKER_COMPOSE restart"
 echo ""
 echo "🛑 To stop:"
-echo "   docker-compose down"
+echo "   $DOCKER_COMPOSE down"
 echo ""
