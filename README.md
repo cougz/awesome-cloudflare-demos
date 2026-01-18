@@ -41,10 +41,10 @@ That's it! The platform will:
 - Start Docker containers (nginx + cloudflared)
 - Run health checks
 
-### 5. Access
+### 3. Access
 
 - **Cloudflare Tunnel**: Check your Cloudflare dashboard for the public URL
-- **Local**: http://localhost:8080
+- **Local**: http://localhost
 
 ## ➕ Adding New Modules
 
@@ -295,7 +295,7 @@ Tasks 8-9 demonstrate a real cache poisoning vulnerability:
 
 1. Check logs: `docker-compose logs`
 2. Verify nginx is running: `docker ps`
-3. Test locally: `curl http://localhost:8080/health`
+3. Test locally: `curl http://localhost/health`
 
 ### Cloudflare Tunnel not connecting
 

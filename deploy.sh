@@ -124,7 +124,7 @@ fi
 # Health check
 echo ""
 echo "🏥 Running health check..."
-if curl -s http://localhost:8080/health > /dev/null; then
+if curl -s http://localhost:80/health > /dev/null; then
     echo "  ✓ Health check passed"
 else
     echo "  ⚠️  Health check failed (but service may still be starting)"
@@ -154,7 +154,7 @@ for module_dir in modules/*/; do
 done
 echo ""
 echo "🌐 Cloudflare Tunnel: Running (check your Cloudflare dashboard for URL)"
-echo "🔍 Local: http://localhost:8080"
+echo "🔍 Local: http://localhost"
 echo ""
 echo "📝 To view logs:"
 echo "   $DOCKER_COMPOSE logs -f"
