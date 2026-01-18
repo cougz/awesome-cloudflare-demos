@@ -1,0 +1,53 @@
+<div class="module-header">
+    <h1>📦 Your Module Title</h1>
+    <p>Brief description of what this module demonstrates</p>
+    <a href="https://developers.cloudflare.com/docs-link" target="_blank" class="docs-link">📚 Official Docs</a>
+</div>
+
+<div class="test-section">
+    <h2>📋 Prerequisites</h2>
+    <div class="warning">
+        <strong>Important:</strong> List any prerequisites here. For example: Create a cache rule in Cloudflare dashboard.
+    </div>
+    <ol>
+        <li>Step 1</li>
+        <li>Step 2</li>
+        <li>Step 3</li>
+    </ol>
+</div>
+
+<div class="test-section">
+    <h2>Test 1: Test Name</h2>
+    <p>Description of what this test demonstrates.</p>
+    <p><strong>Endpoint:</strong> <span class="endpoint">/test-endpoint/resource</span></p>
+    <p><strong>Behavior:</strong> What the endpoint does</p>
+    <div class="expected-behavior">
+        <strong>Expected Behavior:</strong> What you should observe
+    </div>
+    <h3>Curl Command:</h3>
+    <div class="curl-command">
+curl -sIL https://YOUR_DOMAIN/test-endpoint/resource
+    </div>
+    <p><strong>What to observe:</strong></p>
+    <ul>
+        <li>Observation 1</li>
+        <li>Observation 2</li>
+        <li>Observation 3</li>
+    </ul>
+</div>
+
+<div class="test-section">
+    <h2>Test 2: Another Test</h2>
+    <p>Description of another test.</p>
+    <p><strong>Endpoint:</strong> <span class="endpoint">/another-endpoint</span></p>
+    <h3>Curl Command:</h3>
+    <div class="curl-command">
+curl -sIL https://YOUR_DOMAIN/another-endpoint
+    </div>
+    <p>Test description and observations go here.</p>
+</div>
+
+<div class="test-section">
+    <h2>🎉 Module Complete!</h2>
+    <p>Summary of what was learned.</p>
+</div>

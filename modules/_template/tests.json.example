@@ -1,0 +1,33 @@
+{
+  "module": "Your Module Name",
+  "description": "Description of what this module tests",
+  "prerequisites": [
+    "Any prerequisites or setup steps",
+    "For example: Create a cache rule in Cloudflare dashboard"
+  ],
+  "tests": [
+    {
+      "id": 1,
+      "name": "Test Name",
+      "description": "What this test demonstrates",
+      "endpoint": "/test-endpoint/resource",
+      "behavior": "What the endpoint does",
+      "expected": "What you should observe",
+      "commands": [
+        "curl -sIL https://YOUR_DOMAIN/test-endpoint/resource"
+      ],
+      "is_dashboard_step": false
+    },
+    {
+      "id": 2,
+      "name": "Another Test",
+      "description": "Another test description",
+      "endpoint": "/another-endpoint",
+      "behavior": "Endpoint behavior",
+      "expected": "Expected observation",
+      "commands": [
+        "curl command here"
+      ]
+    }
+  ]
+}

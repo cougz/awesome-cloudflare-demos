@@ -1,0 +1,8 @@
+{
+  "name": "Caching",
+  "icon": "⚡",
+  "description": "Learn Cloudflare caching behavior through 11 comprehensive tests covering default behavior, cache rules, and security vulnerabilities",
+  "order": 1,
+  "enabled": true,
+  "docs_url": "https://developers.cloudflare.com/cache/about/cache-control/"
+}

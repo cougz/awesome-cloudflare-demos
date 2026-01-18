@@ -1,0 +1,17 @@
+# Module Nginx Configuration
+# This file defines the routes for your module
+
+# Example endpoint - serves files from test-files/modules/your-module/
+location /test-endpoint/ {
+    alias /usr/share/nginx/html/test-files/modules/your-module/;
+    # Add any custom headers here
+    add_header Cache-Control "public";
+}
+
+# Example endpoint - dynamic content
+location /test-dynamic {
+    default_type text/plain;
+    return 200 "Dynamic response\n";
+}
+
+# Add more endpoints as needed for your tests

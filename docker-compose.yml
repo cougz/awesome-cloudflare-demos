@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  nginx:
+    build: .
+    container_name: cf-demos-nginx
+    restart: unless-stopped
+    networks:
+      - demos-network
+    ports:
+      - "8080:80"
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+      - ./modules:/usr/share/nginx/html/modules:ro
+      - ./nginx/conf.d/modules:/etc/nginx/conf.d/modules:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cf-demos-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - demos-network
+    depends_on:
+      - nginx
+
+networks:
+  demos-network:
+    driver: bridge

@@ -1,0 +1,8 @@
+{
+  "name": "Your Module Name",
+  "icon": "📦",
+  "description": "Brief description of what this module demonstrates",
+  "order": 10,
+  "enabled": true,
+  "docs_url": "https://developers.cloudflare.com/docs-link"
+}

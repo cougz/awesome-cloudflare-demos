@@ -1,0 +1,220 @@
+{
+  "module": "Caching",
+  "description": "Comprehensive Cloudflare caching behavior tests",
+  "prerequisites": [
+    "Start with no Cache Rules for this host",
+    "Purge Everything before running tests"
+  ],
+  "tests": [
+    {
+      "id": 1,
+      "name": "Default Cache (No Headers)",
+      "description": "Tests Cloudflare's default behavior for a standard cacheable file (.jpg) when origin sends no Cache-Control",
+      "endpoint": "/test-no-header/public.jpg",
+      "behavior": "Origin sends NO Cache-Control header",
+      "expected": "1st request = MISS, 2nd request = HIT (CF adds its own cache-control)",
+      "commands": [
+        "curl -sIL https://YOUR_DOMAIN/test-no-header/public.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Default 404 Cache",
+      "description": "Tests Cloudflare's default behavior for 404 errors",
+      "endpoint": "/test-404.jpg",
+      "behavior": "File doesn't exist - returns 404",
+      "expected": "1st = MISS, 2nd = HIT (CF caches 404s for short time)",
+      "commands": [
+        "curl -sIL https://YOUR_DOMAIN/test-404.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Origin TTL (Ignored by Default)",
+      "description": "Observes that Cloudflare ignores origin's max-age setting by default",
+      "endpoint": "/test-public/test1.jpg",
+      "behavior": "Origin sends Cache-Control: max-age=600 (10 min)",
+      "expected": "Shows max-age=14400 (CF's default), proving origin TTL is ignored",
+      "commands": [
+        "curl -sIL https://YOUR_DOMAIN/test-public/test1.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Private Header (Ignored by Default)",
+      "description": "Tests Cloudflare's behavior with 'private' directive",
+      "endpoint": "/test-private/test3.jpg",
+      "behavior": "Origin sends Cache-Control: private",
+      "expected": "MISS (incorrect - should be BYPASS)",
+      "commands": [
+        "curl -sIL https://YOUR_DOMAIN/test-private/test3.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Set-Cookie Header (Ignored by Default)",
+      "description": "Tests Cloudflare's behavior with Set-Cookie header",
+      "endpoint": "/test-set-cookie/test1.jpg",
+      "behavior": "Response includes Set-Cookie: test=value",
+      "expected": "MISS (incorrect - Set-Cookie should trigger BYPASS)",
+      "commands": [
+        "curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\\|cf-cache-status\\|set-cookie'"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Create Origin Cache Control Rule",
+      "description": "Dashboard configuration step to enable origin cache control",
+      "endpoint": null,
+      "behavior": "Configuration step - no test endpoint",
+      "expected": "Create cache rule in Cloudflare dashboard",
+      "is_dashboard_step": true,
+      "instructions": [
+        "Go to Caching > Cache Rules",
+        "Create this rule, then Purge Everything",
+        "Rule Name: 1. Enable Origin Cache Control",
+        "When... (http.host eq \"YOUR_DOMAIN\")",
+        "Then... Origin Cache Control: On"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Validate Origin Cache Control Fix",
+      "description": "Re-run failed tests to validate they now work with Origin Cache Control enabled",
+      "endpoint": "/test-public/test1.jpg",
+      "behavior": "After enabling Origin Cache Control",
+      "expected": "Origin TTL now respected",
+      "subtests": [
+        {
+          "name": "Validate Origin TTL",
+          "endpoint": "/test-public/test1.jpg",
+          "expected": "max-age=600 (now respected)",
+          "command": "curl -sIL https://YOUR_DOMAIN/test-public/test1.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+        },
+        {
+          "name": "Validate Private",
+          "endpoint": "/test-private/test3.jpg",
+          "expected": "BYPASS",
+          "command": "curl -sIL https://YOUR_DOMAIN/test-private/test3.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+        },
+        {
+          "name": "Validate Set-Cookie",
+          "endpoint": "/test-set-cookie/test1.jpg",
+          "expected": "BYPASS",
+          "command": "curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\\|cf-cache-status\\|set-cookie'"
+        },
+        {
+          "name": "Validate Revalidate",
+          "endpoint": "/test-revalidate/test2.jpg",
+          "expected": "MISS then REVALIDATED (s-maxage=1)",
+          "command": "curl -sIL https://YOUR_DOMAIN/test-revalidate/test2.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+        },
+        {
+          "name": "Validate No-Store",
+          "endpoint": "/test-no-store/test4.jpg",
+          "expected": "BYPASS",
+          "command": "curl -sIL https://YOUR_DOMAIN/test-no-store/test4.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+        },
+        {
+          "name": "Validate s-maxage",
+          "endpoint": "/test-s-maxage/test5.jpg",
+          "expected": "REVALIDATED after 30s",
+          "command": "curl -sIL https://YOUR_DOMAIN/test-s-maxage/test5.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Cache Poisoning Flaw",
+      "description": "Discovers cache poisoning vulnerability with cookie-based authentication",
+      "endpoint": "/test-cookie-auth/secret.jpg",
+      "behavior": "Auth'd request poisons cache, unauth'd request gets poisoned cache",
+      "expected": "SECURITY FLAW: Authenticated response cached and served to unauthenticated users",
+      "warning": "This demonstrates a real security vulnerability!",
+      "commands": [
+        "# Run this first (Authenticated):",
+        "curl -sIL --cookie \"auth_token=my_secret_value\" https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\\|cf-cache-status'",
+        "",
+        "# Run this second (Unauthenticated):",
+        "curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\\|cf-cache-status'"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Create Cache Key Rule",
+      "description": "Dashboard configuration step to fix cookie auth caching",
+      "endpoint": null,
+      "behavior": "Configuration step - no test endpoint",
+      "expected": "Create cache key rule in Cloudflare dashboard",
+      "is_dashboard_step": true,
+      "instructions": [
+        "In Caching > Cache Rules, create this second rule (and purge cache)",
+        "Rule Name: 2. Fix Cookie Auth Caching",
+        "When... (http.request.uri.path contains \"/test-cookie-auth/\")",
+        "Then... \"Cache key\" → \"Cache by custom key\"",
+        "Scroll to Cookie (optional) section",
+        "Select \"Include these cookie names and their values\"",
+        "Enter auth_token in the \"Enter cookie names\" box",
+        "Click Deploy"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Validate Cache Key Fix",
+      "description": "Validates that cache key rule fixes the cookie auth vulnerability",
+      "endpoint": "/test-cookie-auth/secret.jpg",
+      "behavior": "After creating Cache Key rule",
+      "expected": "Unauth'd gets 403, Auth'd gets 200 OK",
+      "subtests": [
+        {
+          "name": "Test Unauthenticated (Now Secure)",
+          "endpoint": "/test-cookie-auth/secret.jpg",
+          "expected": "403 Forbidden",
+          "command": "curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\\|cf-cache-status'"
+        },
+        {
+          "name": "Test Authenticated (Works)",
+          "endpoint": "/test-cookie-auth/secret.jpg",
+          "expected": "200 OK",
+          "command": "curl -sIL --cookie \"auth_token=my_secret_value\" https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\\|cf-cache-status'"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Test DYNAMIC Status",
+      "description": "Tests for files Cloudflare doesn't consider cacheable",
+      "endpoint": "/test-dynamic-file",
+      "behavior": "File that CF doesn't consider cacheable",
+      "expected": "CF-Cache-Status: DYNAMIC",
+      "commands": [
+        "curl -sIL https://YOUR_DOMAIN/test-dynamic-file | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Image Resizing",
+      "description": "Practice Cloudflare Image Transformations",
+      "endpoint": "/test-resize/resize-me.jpg",
+      "behavior": "Use Cloudflare's image transformation API",
+      "expected": "Resized version has smaller Content-Length",
+      "prerequisites": [
+        "Enable transformations in dashboard: Media > Images > Transformations > Enable"
+      ],
+      "subtests": [
+        {
+          "name": "Baseline Test (Original)",
+          "endpoint": "/test-resize/resize-me.jpg",
+          "expected": "Original image size",
+          "command": "curl -sIL https://YOUR_DOMAIN/test-resize/resize-me.jpg | grep -i 'HTTP/\\|content-length\\|content-type'"
+        },
+        {
+          "name": "Resize Test (Transformed)",
+          "endpoint": "/cdn-cgi/image/width=100,quality=10/test-resize/resize-me.jpg",
+          "expected": "Smaller Content-Length than baseline",
+          "command": "curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/resize-me.jpg | grep -i 'HTTP/\\|content-length\\|content-type'"
+        }
+      ]
+    }
+  ]
+}
