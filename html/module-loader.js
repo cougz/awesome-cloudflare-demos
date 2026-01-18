@@ -5,13 +5,67 @@ const API_BASE = '/modules';
 //   ============================================
 
 function toggleTheme() {
-    const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
+    try {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    } catch (error) {
+        console.error('Error in toggleTheme:', error);
+    }
+}
+
+function loadTheme() {
+    try {
+        // Check for saved preference first
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme) {
+            // Use saved preference
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        } else {
+            // Detect system preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const systemTheme = prefersDark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', systemTheme);
+            updateThemeIcon(systemTheme);
+        }
+    } catch (error) {
+        console.error('Error in loadTheme:', error);
+    }
+}
+
+function updateThemeIcon(theme) {
+    try {
+        const icon = document.getElementById('theme-icon');
+        if (!icon) return;
+        
+        if (theme === 'dark') {
+            // Sun icon for dark mode (to switch to light)
+            icon.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/>
+                    <path d="M12 1v2m0 10h-2a8 8 0 00-16 0m16 16v-2h2a10 10 0 0020 0m0-12v2a2 2 0 012 2"/>
+                    <path d="M12 3v1"/>
+                    <path d="M16.05 11.05a1 1 0 00-2-2v2a2 2 0 002 2" stroke-width="2"/>
+                </svg>
+            `;
+        } else {
+            // Moon icon for light mode (to switch to dark)
+            icon.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3a6 6 0 006 6v12a6 6 0 00-6-6v-12a6 6 0 006-6m0 4a2 2 0 012 2"/>
+                    <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            `;
+        }
+    } catch (error) {
+        console.error('Error in updateThemeIcon:', error);
+    }
 }
 
 function loadTheme() {
@@ -93,7 +147,7 @@ function createFloatingDots() {
 }
 
 // ============================================
-//   ORIGINAL MODULE LOADING LOGIC
+//   MODULE LOADING LOGIC
 //   ============================================
 
 async function loadModules() {
@@ -102,6 +156,41 @@ async function loadModules() {
         if (!response.ok) {
             throw new Error('Failed to load modules');
         }
+
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const links = doc.querySelectorAll('a[href]');
+
+        const moduleDirs = Array.from(links)
+            .map(link => link.getAttribute('href').replace(/\/$/, ''))
+            .filter(dir => dir && dir !== '.' && dir !== '..');
+
+        const modules = [];
+        for (const dir of moduleDirs) {
+            try {
+                const configResponse = await fetch(`${API_BASE}/${dir}/config.json`);
+                if (configResponse.ok) {
+                    const config = await configResponse.json();
+                    if (config.enabled) {
+                        modules.push({
+                            ...config,
+                            dir: dir
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error(`Failed to load config for ${dir}:`, e);
+            }
+        }
+
+        modules.sort((a, b) => (a.order || 999) - (b.order || 999));
+        renderModuleList(modules);
+    } catch (error) {
+        console.error('Error loading modules:', error);
+        document.getElementById('module-list').innerHTML = '<p style="color: red;">Error loading modules: ' + error.message + '</p>';
+    }
+}
 
         const html = await response.text();
         const parser = new DOMParser();
