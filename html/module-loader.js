@@ -39,9 +39,16 @@ function updateThemeIcon(theme) {
 
         if (theme === 'dark') {
             icon.innerHTML = `
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="4"/>
-                    <path d="M12 2v2m0 16v2m-7-9H3m18 0h-2m-2.5-6.5l-1.4 1.4m0 10.2l1.4 1.4M6.3 6.3l1.4 1.4m10.2 0l-1.4-1.4m-7.4 7.4l-1.4-1.4"/>
+                <svg viewBox="0 0 24 24" width="100" height="100" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round">
+                  <circle cx="12" cy="12" r="4" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                 </svg>
             `;
         } else {
