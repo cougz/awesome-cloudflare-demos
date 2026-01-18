@@ -4,11 +4,31 @@ set -e
 
 # Determine which docker compose command to use
 if command -v docker-compose &> /dev/null; then
-    DOCKER_COMPOSE="docker-compose"
+    DOCKER_COMPOSE="sudo docker-compose"
 elif docker compose version &> /dev/null; then
-    DOCKER_COMPOSE="docker compose"
+    DOCKER_COMPOSE="sudo docker compose"
 else
-    DOCKER_COMPOSE="docker-compose"
+    DOCKER_COMPOSE="sudo docker-compose"
+fi
+
+# Determine if sudo is needed for Docker
+SUDO=""
+if ! docker info &> /dev/null; then
+    if sudo docker info &> /dev/null; then
+        SUDO="sudo"
+        echo "⚠️  Docker requires sudo - using sudo for docker commands"
+    else
+        echo "❌ Cannot access Docker (tried without and with sudo)"
+        echo ""
+        echo "Fix options:"
+        echo "  1. Add your user to the docker group:"
+        echo "     sudo usermod -aG docker $USER"
+        echo "     Then log out and log back in"
+        echo ""
+        echo "  2. Run this script with sudo:"
+        echo "     sudo ./deploy.sh"
+        exit 1
+    fi
 fi
 
 echo "🚀 Cloudflare Demos Deployment"
@@ -37,8 +57,8 @@ fi
 echo ""
 echo "🔍 Checking prerequisites..."
 
-if ! command -v docker &> /dev/null; then
-    echo "❌ Docker not installed"
+if ! $SUDO docker info &> /dev/null; then
+    echo "❌ Docker not installed or not accessible"
     echo "   Install from: https://docs.docker.com/get-docker/"
     exit 1
 fi
@@ -85,7 +105,7 @@ sleep 5
 echo ""
 echo "🔍 Checking service status..."
 
-if docker ps | grep -q "cf-demos-nginx"; then
+if $SUDO docker ps | grep -q "cf-demos-nginx"; then
     echo "  ✓ Nginx running"
 else
     echo "  ❌ Nginx failed"
@@ -93,7 +113,7 @@ else
     exit 1
 fi
 
-if docker ps | grep -q "cf-demos-tunnel"; then
+if $SUDO docker ps | grep -q "cf-demos-tunnel"; then
     echo "  ✓ Tunnel running"
 else
     echo "  ❌ Tunnel failed"
