@@ -107,6 +107,23 @@ location /test-endpoint/ {
 
 HTML with test descriptions, curl commands, and expected behaviors.
 
+**Dynamic Domain Support:** Include this script at the end of your `ui.html` to automatically replace `YOUR_DOMAIN` with the actual domain/host the learner is using (e.g., `localhost` or your tunnel URL):
+
+```javascript
+<script>
+(function() {
+    const currentOrigin = window.location.origin;
+    const domainElements = document.querySelectorAll('.curl-command');
+
+    domainElements.forEach(element => {
+        element.textContent = element.textContent.replace(/YOUR_DOMAIN/g, currentOrigin);
+    });
+})();
+</script>
+```
+
+This script automatically finds all elements with class `.curl-command` and replaces `YOUR_DOMAIN` with the browser's actual origin, making curl commands work immediately without manual editing.
+
 ### 3. Add Test Files (optional)
 
 ```bash

@@ -51,3 +51,14 @@ curl -sIL https://YOUR_DOMAIN/another-endpoint
     <h2>🎉 Module Complete!</h2>
     <p>Summary of what was learned.</p>
 </div>
+
+<script>
+(function() {
+    const currentOrigin = window.location.origin;
+    const domainElements = document.querySelectorAll('.curl-command');
+
+    domainElements.forEach(element => {
+        element.textContent = element.textContent.replace(/YOUR_DOMAIN/g, currentOrigin);
+    });
+})();
+</script>
