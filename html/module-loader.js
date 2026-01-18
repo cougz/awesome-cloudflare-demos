@@ -80,10 +80,21 @@ async function loadModule(moduleDir) {
             showModuleList();
         };
         moduleContent.insertBefore(backBtn, moduleContent.firstChild);
+
+        executeScripts(moduleContent);
     } catch (error) {
         console.error('Error loading module:', error);
         alert('Failed to load module');
     }
+}
+
+function executeScripts(container) {
+    const scripts = container.querySelectorAll('script');
+    scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        newScript.textContent = oldScript.textContent;
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
 }
 
 function showModuleList() {
