@@ -43,7 +43,7 @@ That's it! The platform will:
 
 ### 3. Access
 
-- **Cloudflare Tunnel**: Check your Cloudflare dashboard for the public URL
+- **Cloudflare Tunnel**: Check your Cloudflare dashboard for public URL
 - **Local**: http://localhost
 
 ## ➕ Adding New Modules
@@ -107,7 +107,7 @@ location /test-endpoint/ {
 
 HTML with test descriptions, curl commands, and expected behaviors.
 
-**Dynamic Domain Support:** Include this script at the end of your `ui.html` to automatically replace `YOUR_DOMAIN` with the actual domain/host the learner is using (e.g., `localhost` or your tunnel URL):
+**Dynamic Domain Support:** Include this script at the end of your `ui.html` to automatically replace `YOUR_DOMAIN` with the actual domain/host the learner is using (e.g., `localhost` or `https://try.cloudemo.org`):
 
 ```javascript
 <script>

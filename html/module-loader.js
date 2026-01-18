@@ -1,5 +1,93 @@
 const API_BASE = '/modules';
 
+// ============================================
+//   THEME MANAGEMENT
+//   ============================================
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function loadTheme() {
+    // Check for saved preference first
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme) {
+        // Use saved preference
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+    } else {
+        // Detect system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const systemTheme = prefersDark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', systemTheme);
+        updateThemeIcon(systemTheme);
+    }
+}
+
+function updateThemeIcon(theme) {
+    const icon = document.getElementById('theme-icon');
+    if (!icon) return;
+    
+    if (theme === 'dark') {
+        // Sun icon for dark mode (to switch to light)
+        icon.innerHTML = `
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2m0 10h-2a8 8 0 00-16 0m16 16v-2h2a10 10 0 0020 0m0-12v2a2 2 0 012 2m-2 2a2 2 0 012 2" />
+        `;
+    } else {
+        // Moon icon for light mode (to switch to dark)
+        icon.innerHTML = `
+            <path d="M12 3a6 6 0 006 6v12a6 6 0 00-6-6v-12a6 6 0 006-6m0 4a2 2 0 012-2m-2 2a2 2 0 012-2 0 2 2 0 002-2m0 4a2 2 0 012-2m-2 2a2 2 0 002 2"/>
+        `;
+    }
+}
+
+// ============================================
+//   FLOATING DOTS GENERATION
+//   ============================================
+
+function createFloatingDots() {
+    const container = document.getElementById('dots-container');
+    if (!container) return;
+    
+    // Clear existing dots
+    container.innerHTML = '';
+    
+    // Create 16 dots (balanced)
+    const dotCount = 16;
+    
+    for (let i = 0; i < dotCount; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        
+        // Random position
+        dot.style.left = Math.random() * 100 + '%';
+        dot.style.top = Math.random() * 100 + '%';
+        
+        // Staggered animation timing for organic feel
+        dot.style.animationDelay = (Math.random() * 10) + 's';
+        dot.style.animationDuration = (18 + Math.random() * 8) + 's';
+        
+        // Slight size variation
+        const size = 6 + Math.random() * 2;
+        dot.style.width = size + 'px';
+        dot.style.height = size + 'px';
+        
+        container.appendChild(dot);
+    }
+}
+
+// ============================================
+//   ORIGINAL MODULE LOADING LOGIC
+//   ============================================
+
 async function loadModules() {
     try {
         const response = await fetch(`${API_BASE}/`);
@@ -80,8 +168,12 @@ async function loadModule(moduleDir) {
             showModuleList();
         };
         moduleContent.insertBefore(backBtn, moduleContent.firstChild);
-
+        
+        // Execute any inline scripts from the loaded HTML
         executeScripts(moduleContent);
+        
+        // Replace YOUR_DOMAIN in all curl commands
+        replaceDomainInCurlCommands();
     } catch (error) {
         console.error('Error loading module:', error);
         alert('Failed to load module');
@@ -97,12 +189,44 @@ function executeScripts(container) {
     });
 }
 
+function replaceDomainInCurlCommands() {
+    const currentHostname = window.location.hostname;
+    console.log('Domain replacement: Replacing YOUR_DOMAIN with', currentHostname);
+    const curlElements = document.querySelectorAll('.curl-command');
+    console.log('Found', curlElements.length, 'curl-command elements');
+
+    curlElements.forEach((element, index) => {
+        const oldContent = element.textContent;
+        element.textContent = oldContent.replace(/YOUR_DOMAIN/g, currentHostname);
+        console.log('Replaced in element', index, ':', oldContent.includes('YOUR_DOMAIN') ? 'YES' : 'NO');
+    });
+}
+
 function showModuleList() {
     document.getElementById('module-content').innerHTML = '';
     document.getElementById('module-list').style.display = 'grid';
 }
 
+// ============================================
+//   INITIALIZATION
+//   ============================================
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Load theme
+    loadTheme();
+    
+    // Create floating dots
+    createFloatingDots();
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) {
+            document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            updateThemeIcon(e.matches ? 'dark' : 'light');
+        }
+    });
+    
+    // Load modules and app header
     loadModules();
     document.getElementById('app-header').innerHTML = '';
     fetch('/app-header.html')

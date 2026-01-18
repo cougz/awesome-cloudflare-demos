@@ -3,10 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloudflare Demos</title>
+    <meta name="color-scheme" content="light dark">
+    <title>Try Cloudflare Demos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Dynamic Background Elements -->
+    <div class="wave-background">
+        <div class="wave wave-1"></div>
+        <div class="wave wave-2"></div>
+        <div class="wave wave-3"></div>
+    </div>
+    <div class="dots-container" id="dots-container"></div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" id="theme-toggle">
+        <svg id="theme-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2m0 10h-2a8 8 0 00-16 0m16 16v-2h2a10 10 0 0020 0m0-12v2a2 2 0 012 2m-2 2a2 2 0 012-2m0 12v-2a2 2 0 002 2" />
+        </svg>
+    </button>
+
     <div id="app-header"></div>
     <div class="container">
         <div id="module-list" class="module-list">
