@@ -325,10 +325,14 @@ curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/res
 <script>
 (function() {
     const currentOrigin = window.location.origin;
+    console.log('Domain replacement: Replacing YOUR_DOMAIN with', currentOrigin);
     const domainElements = document.querySelectorAll('.curl-command');
+    console.log('Found', domainElements.length, 'curl-command elements');
 
-    domainElements.forEach(element => {
-        element.textContent = element.textContent.replace(/YOUR_DOMAIN/g, currentOrigin);
+    domainElements.forEach((element, index) => {
+        const oldContent = element.textContent;
+        element.textContent = oldContent.replace(/YOUR_DOMAIN/g, currentOrigin);
+        console.log('Replaced in element', index, ':', oldContent.includes('YOUR_DOMAIN') ? 'YES' : 'NO');
     });
 })();
 </script>
