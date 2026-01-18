@@ -40,17 +40,14 @@ function updateThemeIcon(theme) {
         if (theme === 'dark') {
             icon.innerHTML = `
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5"/>
-                    <path d="M12 1v2m0 10h-2a8 8 0 00-16 0m16 16v-2h2a10 10 0 0020 0m0-12v2a2 2 0 012 2"/>
-                    <path d="M12 3v1"/>
-                    <path d="M16.05 11.05a1 1 0 00-2-2v2a2 2 0 002 2" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2m0 16v2m-7-9H3m18 0h-2m-2.5-6.5l-1.4 1.4m0 10.2l1.4 1.4M6.3 6.3l1.4 1.4m10.2 0l-1.4-1.4m-7.4 7.4l-1.4-1.4"/>
                 </svg>
             `;
         } else {
             icon.innerHTML = `
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3a6 6 0 006 6v12a6 6 0 00-6-6v-12a6 6 0 006-6m0 4a2 2 0 012 2"/>
-                    <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                 </svg>
             `;
         }
