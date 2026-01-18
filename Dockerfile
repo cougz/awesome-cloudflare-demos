@@ -1,5 +1,8 @@
 FROM nginx:alpine
 
+# Install curl for health check
+RUN apk add --no-cache curl
+
 # Copy nginx base configuration
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY nginx/conf.d/_base.conf /etc/nginx/conf.d/default.conf
@@ -18,7 +21,7 @@ COPY test-files/ /usr/share/nginx/html/test-files/
 
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+HEALTHCHECK --interval=30s --timeout=10s \
+  CMD curl -f http://localhost/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
