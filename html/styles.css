@@ -107,6 +107,11 @@ body {
   }
 }
 
+/* Slower wave animation - 20s cycle instead of 10s */
+.wave {
+  animation-duration: 20s !important;
+}
+
 .dots-container {
   position: fixed;
   top: 0;
@@ -187,6 +192,10 @@ body {
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
 }
 
+.header-text {
+  flex: 1;
+}
+
 .header-text h1 {
   margin: 0;
   font-size: 2em;
@@ -195,6 +204,17 @@ body {
 .header-text p {
   margin: 0;
   opacity: 0.85;
+}
+
+.cloudflare-logo {
+  transition: all 0.3s ease;
+}
+
+.cloudflare-logo img {
+  display: block;
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
 }
 
 .orange-line {
