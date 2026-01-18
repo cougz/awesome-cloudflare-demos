@@ -29,15 +29,7 @@ cp .env.example .env
 # Add your TUNNEL_TOKEN to .env
 ```
 
-### 3. Download Test Images
-
-```bash
-./scripts/download-images.sh
-```
-
-This downloads sample images from Hugging Face for the caching tests.
-
-### 4. Deploy
+### 3. Deploy
 
 ```bash
 ./deploy.sh
