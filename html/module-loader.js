@@ -38,13 +38,20 @@ function updateThemeIcon(theme) {
     if (theme === 'dark') {
         // Sun icon for dark mode (to switch to light)
         icon.innerHTML = `
-            <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
-            <path d="M12 1v2m0 10h-2a8 8 0 00-16 0m16 16v-2h2a10 10 0 0020 0m0-12v2a2 2 0 012 2" fill="none" stroke="currentColor" stroke-width="2"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <path d="M12 1v2m0 10h-2a8 8 0 00-16 0m16 16v-2h2a10 10 0 0020 0m0-12v2a2 2 0 012 2"/>
+                <path d="M12 3v1"/>
+                <path d="M16.05 11.05a1 1 0 00-2-2 2v2a2 2 0 002 2" stroke-width="2"/>
+            </svg>
         `;
     } else {
         // Moon icon for light mode (to switch to dark)
         icon.innerHTML = `
-            <path d="M12 3a6 6 0 006 6v12a6 6 0 00-6-6v-12a6 6 0 006-6m0 4a2 2 0 012-2" fill="none" stroke="currentColor" stroke-width="2"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 006 6v12a6 6 0 00-6-6v-12a6 6 0 006-6m0 4a2 2 0 012 2"/>
+                <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
         `;
     }
 }

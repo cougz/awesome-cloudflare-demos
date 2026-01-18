@@ -684,6 +684,7 @@ code {
     top: auto;
     right: 15px;
     bottom: 15px;
+    z-index: 1001;
   }
 
   .container {
@@ -692,6 +693,11 @@ code {
 
   .module-header,
   .module-content {
+    padding: 20px;
+  }
+
+  /* Ensure mobile touch optimization */
+  .module-card {
     padding: 20px;
   }
 }
