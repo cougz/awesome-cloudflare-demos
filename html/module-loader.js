@@ -236,10 +236,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load modules and app header
     loadModules();
-    document.getElementById('app-header').innerHTML = '';
+    
+    // Load app header content
     fetch('/app-header.html')
         .then(r => r.text())
         .then(html => {
-            document.getElementById('app-header').innerHTML = html;
+            const appHeader = document.getElementById('app-header');
+            if (appHeader) {
+                appHeader.innerHTML = html;
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load app-header:', error);
         });
 });
