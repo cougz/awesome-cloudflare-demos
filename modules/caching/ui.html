@@ -4,322 +4,505 @@
     <a href="https://developers.cloudflare.com/cache/about/cache-control/" target="_blank" class="docs-link">📚 Official Docs</a>
 </div>
 
-<div class="test-section">
-    <h2>📋 Prerequisites</h2>
-    <div class="warning">
-        <strong>Important:</strong> Start with no Cache Rules for this host and Purge Everything before running tests.
-    </div>
-    <ol>
-        <li>Go to Cloudflare Dashboard > Caching > Cache Rules</li>
-        <li>Remove or disable all cache rules for this host</li>
-        <li>Go to Caching > Configuration</li>
-        <li>Click "Purge Everything"</li>
-    </ol>
-</div>
+<div class="module-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-title">📋 Navigation</div>
+        <ul class="sidebar-nav">
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#file-structure">File Structure</a></li>
+            <li><a href="#prerequisites">Prerequisites</a></li>
+            <li><a href="#task-1">Task 1: Default Cache</a></li>
+            <li><a href="#task-2">Task 2: 404 Cache</a></li>
+            <li><a href="#task-3">Task 3: Origin TTL</a></li>
+            <li><a href="#task-4">Task 4: Private Header</a></li>
+            <li><a href="#task-5">Task 5: Set-Cookie</a></li>
+            <li><a href="#task-6">Task 6: Cache Rule</a></li>
+            <li><a href="#task-7">Task 7: Validate Fix</a></li>
+            <li><a href="#task-8">Task 8: Cache Poisoning</a></li>
+            <li><a href="#task-9">Task 9: Cache Key Rule</a></li>
+            <li><a href="#task-10">Task 10: Validate Fix</a></li>
+            <li><a href="#task-11">Task 11: DYNAMIC Status</a></li>
+            <li><a href="#task-12">Task 12: Image Resizing</a></li>
+        </ul>
+    </aside>
 
-<div class="test-section">
-    <h2>Task 1: Test Default Cache (No Headers)</h2>
-    <p>Tests Cloudflare's default behavior for a standard cacheable file (.jpg) when origin sends no Cache-Control.</p>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-no-header/public.jpg</span></p>
-    <p><strong>Behavior:</strong> Origin sends NO Cache-Control header</p>
-    <div class="expected-behavior">
-        <strong>Expected Behavior:</strong> 1st request = MISS, 2nd request = HIT (CF adds its own cache-control)
-    </div>
-    <h3>Curl Command:</h3>
-    <div class="curl-command">
+    <div class="module-content-wrapper">
+        <div class="test-section" id="intro">
+            <h2>🚀 Introduction</h2>
+            <p>This module provides hands-on practice with Cloudflare caching behavior. You'll test default caching rules, learn how to fix them with Origin Cache Control, discover security vulnerabilities, and practice Image Resizing transformations.</p>
+        </div>
+
+        <div class="test-section" id="file-structure">
+            <h2>📁 Origin Server File Structure</h2>
+            <p>Below is the directory structure of test files on the origin server. You can click on any file to view it directly in your browser.</p>
+            <div class="file-tree">
+                <div class="file-tree-title">test-files/modules/caching/</div>
+                <div class="file-tree-content">
+                    <div class="file-tree-line directory">/usr/share/nginx/html/test-files/modules/caching/</div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-no-header/public.jpg" target="_blank">public.jpg</a> <span class="comment">&lt;-- Used for default cache test</span></div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-public/test1.jpg" target="_blank">test1.jpg</a> <span class="comment">&lt;-- Used for origin TTL test</span></div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-private/test3.jpg" target="_blank">test3.jpg</a> <span class="comment">&lt;-- Used for private header test</span></div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-set-cookie/test1.jpg" target="_blank">test1.jpg</a> <span class="comment">&lt;-- Used for Set-Cookie test</span></div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-revalidate/test2.jpg" target="_blank">test2.jpg</a> <span class="comment">&lt;-- Used for revalidate test</span></div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-no-store/test4.jpg" target="_blank">test4.jpg</a> <span class="comment">&lt;-- Used for no-store test</span></div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-s-maxage/test5.jpg" target="_blank">test5.jpg</a> <span class="comment">&lt;-- Used for s-maxage test</span></div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-cookie-auth/secret.jpg" target="_blank">secret.jpg</a> <span class="comment">&lt;-- Used for cache poisoning test</span></div>
+                    <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;└── <a href="/test-resize/resize-me.jpg" target="_blank">resize-me.jpg</a> <span class="comment">&lt;-- Used for image resizing test</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section" id="prerequisites">
+            <h2>📋 Prerequisites</h2>
+            <div class="warning">
+                <strong>Important:</strong> Start with no Cache Rules for this host and Purge Everything before running tests.
+            </div>
+            <ol>
+                <li>Go to Cloudflare Dashboard > Caching > Cache Rules</li>
+                <li>Remove or disable all cache rules for this host</li>
+                <li>Go to Caching > Configuration</li>
+                <li>Click "Purge Everything"</li>
+            </ol>
+        </div>
+
+        <div class="test-section" id="task-1">
+            <h2>Task 1: Test Default Cache (No Headers)</h2>
+            <p>Tests Cloudflare's default behavior for a standard cacheable file (.jpg) when origin sends no Cache-Control.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-no-header/public.jpg</span></p>
+            <p><strong>Behavior:</strong> Origin sends NO Cache-Control header</p>
+            <div class="expected-behavior">
+                <strong>Expected Behavior:</strong> 1st request = MISS, 2nd request = HIT (CF adds its own cache-control)
+            </div>
+            
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="comment"># Cloudflare Caching Test Endpoints</span>
+
+<span class="keyword">location</span> <span class="directive">/test-no-header/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="comment"># No Cache-Control header sent by origin</span>
+}</pre>
+            </div>
+            
+            <h3>Curl Command:</h3>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-no-header/public.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
-    <p><strong>What to observe:</strong></p>
-    <ul>
-        <li>First request shows <code>cf-cache-status: MISS</code></li>
-        <li>Second request shows <code>cf-cache-status: HIT</code></li>
-        <li>Cloudflare adds its own <code>Cache-Control</code> header</li>
-    </ul>
-</div>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li>First request shows <code>cf-cache-status: MISS</code></li>
+                <li>Second request shows <code>cf-cache-status: HIT</code></li>
+                <li>Cloudflare adds its own <code>Cache-Control</code> header</li>
+            </ul>
+        </div>
 
-<div class="test-section">
-    <h2>Task 2: Test Default 404 Cache</h2>
-    <p>Tests Cloudflare's default behavior for 404 errors.</p>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-404.jpg</span> (file doesn't exist)</p>
-    <div class="expected-behavior">
-        <strong>Expected Behavior:</strong> 1st = MISS, 2nd = HIT (CF caches 404s for short time)
-    </div>
-    <h3>Curl Command:</h3>
-    <div class="curl-command">
+        <div class="test-section" id="task-2">
+            <h2>Task 2: Test Default 404 Cache</h2>
+            <p>Tests Cloudflare's default behavior for 404 errors.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-404.jpg</span> (file doesn't exist)</p>
+            <div class="expected-behavior">
+                <strong>Expected Behavior:</strong> 1st = MISS, 2nd = HIT (CF caches 404s for short time)
+            </div>
+            
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="comment"># 404 test endpoint (file doesn't exist)</span>
+<span class="keyword">location</span> <span class="directive">/test-404.jpg</span> {
+    <span class="directive">return</span> <span class="value">404</span>;
+}</pre>
+            </div>
+            
+            <h3>Curl Command:</h3>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-404.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
-    <p><strong>What to observe:</strong></p>
-    <ul>
-        <li>First request shows <code>HTTP/1.1 404 Not Found</code> and <code>cf-cache-status: MISS</code></li>
-        <li>Second request shows <code>HTTP/1.1 404 Not Found</code> and <code>cf-cache-status: HIT</code></li>
-        <li>Cloudflare caches 404 responses for a short time</li>
-    </ul>
-</div>
-
-<div class="test-section">
-    <h2>Task 3: Observe Ignored Origin TTL</h2>
-    <p>Origin sends <code>Cache-Control: max-age=600</code> (10 minutes).</p>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-public/test1.jpg</span></p>
-    <div class="warning">
-        <strong>Observe This:</strong> You'll see <code>max-age=14400</code>, not <code>600</code>. This proves the origin TTL is ignored by default.
-    </div>
-    <h3>Curl Command:</h3>
-    <div class="curl-command">
-curl -sIL https://YOUR_DOMAIN/test-public/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
-    <p><strong>What to observe:</strong></p>
-    <ul>
-        <li>Origin sends <code>max-age=600</code> (10 minutes)</li>
-        <li>Cloudflare responds with <code>max-age=14400</code> (4 hours - CF's default)</li>
-        <li>Proves that Cloudflare ignores origin TTL by default</li>
-    </ul>
-</div>
-
-<div class="test-section">
-    <h2>Task 4: Observe Ignored 'private' Header</h2>
-    <p>Origin sends <code>Cache-Control: private</code>.</p>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-private/test3.jpg</span></p>
-    <div class="warning">
-        <strong>Observe This:</strong> You'll see <code>MISS</code>. This is incorrect - according to documentation, it should be <code>BYPASS</code>.
-    </div>
-    <h3>Curl Command:</h3>
-    <div class="curl-command">
-curl -sIL https://YOUR_DOMAIN/test-private/test3.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
-    <p><strong>What to observe:</strong></p>
-    <ul>
-        <li>Every request shows <code>cf-cache-status: MISS</code></li>
-        <li>According to docs, <code>private</code> should trigger <code>BYPASS</code></li>
-        <li>This is a quirk in Cloudflare's default behavior</li>
-    </ul>
-</div>
-
-<div class="test-section">
-    <h2>Task 5: Observe Ignored 'Set-Cookie' Header</h2>
-    <p>Origin sends a <code>Set-Cookie</code> header in the response.</p>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-set-cookie/test1.jpg</span></p>
-    <div class="warning">
-        <strong>Observe This:</strong> You'll see <code>MISS</code>. This is incorrect - docs say Set-Cookie should trigger <code>BYPASS</code>.
-    </div>
-    <h3>Curl Command:</h3>
-    <div class="curl-command">
-curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|set-cookie'
-    </div>
-    <p><strong>What to observe:</strong></p>
-    <ul>
-        <li>Every request shows <code>cf-cache-status: MISS</code></li>
-        <li>Response includes <code>Set-Cookie: test=value</code></li>
-        <li>According to docs, Set-Cookie should trigger <code>BYPASS</code></li>
-    </ul>
-</div>
-
-<div class="test-section">
-    <h2>Task 6: Create "Origin Cache Control" Rule</h2>
-    <div class="dashboard-instruction">
-        <strong>Dashboard Action Required:</strong>
-        <ol>
-            <li>Go to Cloudflare Dashboard</li>
-            <li>Navigate to <strong>Caching > Cache Rules</strong></li>
-            <li>Create a new rule with these settings:</li>
+            </div>
+            <p><strong>What to observe:</strong></p>
             <ul>
-                <li><strong>Rule Name:</strong> 1. Enable Origin Cache Control</li>
-                <li><strong>When incoming requests match...</strong></li>
-                <li>Field: <code>Hostname</code> Operator: <code>equals</code> Value: <code>YOUR_DOMAIN</code></li>
-                <li><strong>Then...</strong></li>
-                <li>Select <strong>Origin Cache Control</strong> and set to <code>On</code></li>
+                <li>First request shows <code>HTTP/1.1 404 Not Found</code> and <code>cf-cache-status: MISS</code></li>
+                <li>Second request shows <code>HTTP/1.1 404 Not Found</code> and <code>cf-cache-status: HIT</code></li>
+                <li>Cloudflare caches 404 responses for a short time</li>
             </ul>
-            <li>Click <strong>Deploy</strong></li>
-            <li>Go to <strong>Caching > Configuration</strong></li>
-            <li>Click <strong>Purge Everything</strong></li>
-        </ol>
-    </div>
-</div>
+        </div>
 
-<div class="test-section">
-    <h2>Task 7: Validate "Origin Cache Control" Fix</h2>
-    <p>Now that Origin Cache Control is enabled, re-run the failed tests. They should now work correctly.</p>
-
-    <h3>1. Validate Origin TTL (Task 3)</h3>
-    <p><strong>Expected:</strong> Now shows <code>max-age=600</code> (origin is respected)</p>
-    <div class="curl-command">
+        <div class="test-section" id="task-3">
+            <h2>Task 3: Observe Ignored Origin TTL</h2>
+            <p>Origin sends <code>Cache-Control: max-age=600</code> (10 minutes).</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-public/test1.jpg</span></p>
+            <div class="warning">
+                <strong>Observe This:</strong> You'll see <code>max-age=14400</code>, not <code>600</code>. This proves the origin TTL is ignored by default.
+            </div>
+            
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-public/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, max-age=600"</span>;
+}</pre>
+            </div>
+            
+            <h3>Curl Command:</h3>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-public/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li>Origin sends <code>max-age=600</code> (10 minutes)</li>
+                <li>Cloudflare responds with <code>max-age=14400</code> (4 hours - CF's default)</li>
+                <li>Proves that Cloudflare ignores origin TTL by default</li>
+            </ul>
+        </div>
 
-    <h3>2. Validate Private (Task 4)</h3>
-    <p><strong>Expected:</strong> Now shows <code>BYPASS</code></p>
-    <div class="curl-command">
+        <div class="test-section" id="task-4">
+            <h2>Task 4: Observe Ignored 'private' Header</h2>
+            <p>Origin sends <code>Cache-Control: private</code>.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-private/test3.jpg</span></p>
+            <div class="warning">
+                <strong>Observe This:</strong> You'll see <code>MISS</code>. This is incorrect - according to documentation, it should be <code>BYPASS</code>.
+            </div>
+            
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-private/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "private"</span>;
+}</pre>
+            </div>
+            
+            <h3>Curl Command:</h3>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-private/test3.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li>Every request shows <code>cf-cache-status: MISS</code></li>
+                <li>According to docs, <code>private</code> should trigger <code>BYPASS</code></li>
+                <li>This is a quirk in Cloudflare's default behavior</li>
+            </ul>
+        </div>
 
-    <h3>3. Validate Set-Cookie (Task 5)</h3>
-    <p><strong>Expected:</strong> Now shows <code>BYPASS</code></p>
-    <div class="curl-command">
+        <div class="test-section" id="task-5">
+            <h2>Task 5: Observe Ignored 'Set-Cookie' Header</h2>
+            <p>Origin sends a <code>Set-Cookie</code> header in the response.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-set-cookie/test1.jpg</span></p>
+            <div class="warning">
+                <strong>Observe This:</strong> You'll see <code>MISS</code>. This is incorrect - docs say Set-Cookie should trigger <code>BYPASS</code>.
+            </div>
+            
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-set-cookie/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Set-Cookie "test=value; Path=/"</span>;
+}</pre>
+            </div>
+            
+            <h3>Curl Command:</h3>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|set-cookie'
-    </div>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li>Every request shows <code>cf-cache-status: MISS</code></li>
+                <li>Response includes <code>Set-Cookie: test=value</code></li>
+                <li>According to docs, Set-Cookie should trigger <code>BYPASS</code></li>
+            </ul>
+        </div>
 
-    <h3>4. Validate Revalidate</h3>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-revalidate/test2.jpg</span></p>
-    <p><strong>Behavior:</strong> Origin sends <code>Cache-Control: public, s-maxage=1</code></p>
-    <p><strong>Expected:</strong> First request = MISS, then REVALIDATED (revalidates after 1 second)</p>
-    <div class="curl-command">
+        <div class="test-section" id="task-6">
+            <h2>Task 6: Create "Origin Cache Control" Rule</h2>
+            <div class="dashboard-instruction">
+                <strong>Dashboard Action Required:</strong>
+                <ol>
+                    <li>Go to Cloudflare Dashboard</li>
+                    <li>Navigate to <strong>Caching > Cache Rules</strong></li>
+                    <li>Create a new rule with these settings:</li>
+                    <ul>
+                        <li><strong>Rule Name:</strong> 1. Enable Origin Cache Control</li>
+                        <li><strong>When incoming requests match...</strong></li>
+                        <li>Field: <code>Hostname</code> Operator: <code>equals</code> Value: <code>YOUR_DOMAIN</code></li>
+                        <li><strong>Then...</strong></li>
+                        <li>Select <strong>Origin Cache Control</strong> and set to <code>On</code></li>
+                    </ul>
+                    <li>Click <strong>Deploy</strong></li>
+                    <li>Go to <strong>Caching > Configuration</strong></li>
+                    <li>Click <strong>Purge Everything</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section" id="task-7">
+            <h2>Task 7: Validate "Origin Cache Control" Fix</h2>
+            <p>Now that Origin Cache Control is enabled, re-run the failed tests. They should now work correctly.</p>
+
+            <h3>1. Validate Origin TTL (Task 3)</h3>
+            <p><strong>Expected:</strong> Now shows <code>max-age=600</code> (origin is respected)</p>
+            
+            <h4>Origin Server Configuration</h4>
+            <div class="nginx-config">
+                <pre><span class="keyword">location</span> <span class="directive">/test-public/</span> {
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, max-age=600"</span>;
+}</pre>
+            </div>
+            
+            <div class="curl-command">
+curl -sIL https://YOUR_DOMAIN/test-public/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
+            </div>
+
+            <h3>2. Validate Private (Task 4)</h3>
+            <p><strong>Expected:</strong> Now shows <code>BYPASS</code></p>
+            
+            <h4>Origin Server Configuration</h4>
+            <div class="nginx-config">
+                <pre><span class="keyword">location</span> <span class="directive">/test-private/</span> {
+    <span class="directive">add_header</span> <span class="value">Cache-Control "private"</span>;
+}</pre>
+            </div>
+            
+            <div class="curl-command">
+curl -sIL https://YOUR_DOMAIN/test-private/test3.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
+            </div>
+
+            <h3>3. Validate Set-Cookie (Task 5)</h3>
+            <p><strong>Expected:</strong> Now shows <code>BYPASS</code></p>
+            
+            <h4>Origin Server Configuration</h4>
+            <div class="nginx-config">
+                <pre><span class="keyword">location</span> <span class="directive">/test-set-cookie/</span> {
+    <span class="directive">add_header</span> <span class="value">Set-Cookie "test=value; Path=/"</span>;
+}</pre>
+            </div>
+            
+            <div class="curl-command">
+curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|set-cookie'
+            </div>
+
+            <h3>4. Validate Revalidate</h3>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-revalidate/test2.jpg</span></p>
+            <p><strong>Behavior:</strong> Origin sends <code>Cache-Control: public, s-maxage=1</code></p>
+            <p><strong>Expected:</strong> First request = MISS, then REVALIDATED (revalidates after 1 second)</p>
+            
+            <h4>Origin Server Configuration</h4>
+            <div class="nginx-config">
+                <pre><span class="keyword">location</span> <span class="directive">/test-revalidate/</span> {
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, s-maxage=1"</span>;
+}</pre>
+            </div>
+            
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-revalidate/test2.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
+            </div>
 
-    <h3>5. Validate No-Store</h3>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-no-store/test4.jpg</span></p>
-    <p><strong>Behavior:</strong> Origin sends <code>Cache-Control: no-store</code></p>
-    <p><strong>Expected:</strong> <code>BYPASS</code></p>
-    <div class="curl-command">
+            <h3>5. Validate No-Store</h3>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-no-store/test4.jpg</span></p>
+            <p><strong>Behavior:</strong> Origin sends <code>Cache-Control: no-store</code></p>
+            <p><strong>Expected:</strong> <code>BYPASS</code></p>
+            
+            <h4>Origin Server Configuration</h4>
+            <div class="nginx-config">
+                <pre><span class="keyword">location</span> <span class="directive">/test-no-store/</span> {
+    <span class="directive">add_header</span> <span class="value">Cache-Control "no-store"</span>;
+}</pre>
+            </div>
+            
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-no-store/test4.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
+            </div>
 
-    <h3>6. Validate s-maxage</h3>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-s-maxage/test5.jpg</span></p>
-    <p><strong>Behavior:</strong> Origin sends <code>Cache-Control: public, s-maxage=30</code></p>
-    <p><strong>Expected:</strong> First request = MISS, then REVALIDATED after 30 seconds</p>
-    <div class="curl-command">
+            <h3>6. Validate s-maxage</h3>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-s-maxage/test5.jpg</span></p>
+            <p><strong>Behavior:</strong> Origin sends <code>Cache-Control: public, s-maxage=30</code></p>
+            <p><strong>Expected:</strong> First request = MISS, then REVALIDATED after 30 seconds</p>
+            
+            <h4>Origin Server Configuration</h4>
+            <div class="nginx-config">
+                <pre><span class="keyword">location</span> <span class="directive">/test-s-maxage/</span> {
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, s-maxage=30"</span>;
+}</pre>
+            </div>
+            
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-s-maxage/test5.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
-</div>
+            </div>
+        </div>
 
-<div class="test-section">
-    <h2>Task 8: Discover Cache Poisoning Flaw</h2>
-    <div class="warning">
-        <strong>⚠️ SECURITY VULNERABILITY DEMONSTRATION</strong>
-    </div>
-    <p>This test demonstrates a cache poisoning vulnerability where an authenticated request can poison the cache for unauthenticated users.</p>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-cookie-auth/secret.jpg</span></p>
-    <p><strong>Behavior:</strong> Returns 200 with valid auth cookie, 403 without</p>
+        <div class="test-section" id="task-8">
+            <h2>Task 8: Discover Cache Poisoning Flaw</h2>
+            <div class="warning">
+                <strong>⚠️ SECURITY VULNERABILITY DEMONSTRATION</strong>
+            </div>
+            <p>This test demonstrates a cache poisoning vulnerability where an authenticated request can poison the cache for unauthenticated users.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-cookie-auth/secret.jpg</span></p>
+            <p><strong>Behavior:</strong> Returns 200 with valid auth cookie, 403 without</p>
+            
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-cookie-auth/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="comment"># Check for auth_token cookie</span>
+    <span class="keyword">if</span> (<span class="value">$cookie_auth_token != "my_secret_value"</span>) {
+        <span class="directive">return</span> <span class="value">403</span>;
+    }
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public"</span>;
+}</pre>
+            </div>
 
-    <h3>Step 1: Authenticated Request</h3>
-    <p>Run this command <strong>first</strong> (with authentication):</p>
-    <div class="curl-command">
+            <h3>Step 1: Authenticated Request</h3>
+            <p>Run this command <strong>first</strong> (with authentication):</p>
+            <div class="curl-command">
 curl -sIL --cookie "auth_token=my_secret_value" https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'
-    </div>
-    <p><strong>What happens:</strong></p>
-    <ul>
-        <li>Request succeeds with <code>200 OK</code></li>
-        <li>Response is cached by Cloudflare</li>
-    </ul>
-
-    <h3>Step 2: Unauthenticated Request</h3>
-    <p>Run this command <strong>second</strong> (without authentication):</p>
-    <div class="curl-command">
-curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'
-    </div>
-    <div class="warning">
-        <strong>⚠️ FLAW DISCOVERED:</strong> The unauthenticated request gets <code>200 OK</code> and <code>HIT</code> - it's being served the cached authenticated response!
-    </div>
-    <p>This is a cache poisoning vulnerability. The cache key doesn't include the cookie, so authenticated and unauthenticated users share the same cache entry.</p>
-</div>
-
-<div class="test-section">
-    <h2>Task 9: Create "Cache Key" Rule</h2>
-    <div class="dashboard-instruction">
-        <strong>Dashboard Action Required:</strong>
-        <ol>
-            <li>Go to <strong>Caching > Cache Rules</strong></li>
-            <li>Create a new rule:</li>
+            </div>
+            <p><strong>What happens:</strong></p>
             <ul>
-                <li><strong>Rule Name:</strong> 2. Fix Cookie Auth Caching</li>
-                <li><strong>When incoming requests match...</strong></li>
-                <li>Field: <code>URI Path</code> Operator: <code>contains</code> Value: <code>/test-cookie-auth/</code></li>
-                <li><strong>Then...</strong></li>
-                <li>Scroll to <strong>Cache Key</strong> section</li>
-                <li>Select <strong>Cache by custom key</strong></li>
-                <li>Scroll to <strong>Cookie (optional)</strong> section</li>
-                <li>Select <strong>Include these cookie names and their values</strong></li>
-                <li>Enter <code>auth_token</code> in the "Enter cookie names" box</li>
+                <li>Request succeeds with <code>200 OK</code></li>
+                <li>Response is cached by Cloudflare</li>
             </ul>
-            <li>Click <strong>Deploy</strong></li>
-            <li>Go to <strong>Caching > Configuration</strong></li>
-            <li>Click <strong>Purge Everything</strong></li>
-        </ol>
-    </div>
-</div>
 
-<div class="test-section">
-    <h2>Task 10: Validate Cache Key Fix</h2>
-    <p>With the Cache Key rule in place, the vulnerability should be fixed.</p>
-
-    <h3>1. Test Unauthenticated (Now Secure)</h3>
-    <p><strong>Expected:</strong> Now gets <code>403 Forbidden</code></p>
-    <div class="curl-command">
+            <h3>Step 2: Unauthenticated Request</h3>
+            <p>Run this command <strong>second</strong> (without authentication):</p>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'
-    </div>
-    <div class="success">
-        <strong>✅ Fixed:</strong> Unauthenticated users now get 403, not the cached authenticated response.
-    </div>
+            </div>
+            <div class="warning">
+                <strong>⚠️ FLAW DISCOVERED:</strong> The unauthenticated request gets <code>200 OK</code> and <code>HIT</code> - it's being served the cached authenticated response!
+            </div>
+            <p>This is a cache poisoning vulnerability. The cache key doesn't include the cookie, so authenticated and unauthenticated users share the same cache entry.</p>
+        </div>
 
-    <h3>2. Test Authenticated (Works as Before)</h3>
-    <p><strong>Expected:</strong> Gets <code>200 OK</code></p>
-    <div class="curl-command">
+        <div class="test-section" id="task-9">
+            <h2>Task 9: Create "Cache Key" Rule</h2>
+            <div class="dashboard-instruction">
+                <strong>Dashboard Action Required:</strong>
+                <ol>
+                    <li>Go to <strong>Caching > Cache Rules</strong></li>
+                    <li>Create a new rule:</li>
+                    <ul>
+                        <li><strong>Rule Name:</strong> 2. Fix Cookie Auth Caching</li>
+                        <li><strong>When incoming requests match...</strong></li>
+                        <li>Field: <code>URI Path</code> Operator: <code>contains</code> Value: <code>/test-cookie-auth/</code></li>
+                        <li><strong>Then...</strong></li>
+                        <li>Scroll to <strong>Cache Key</strong> section</li>
+                        <li>Select <strong>Cache by custom key</strong></li>
+                        <li>Scroll to <strong>Cookie (optional)</strong> section</li>
+                        <li>Select <strong>Include these cookie names and their values</strong></li>
+                        <li>Enter <code>auth_token</code> in the "Enter cookie names" box</li>
+                    </ul>
+                    <li>Click <strong>Deploy</strong></li>
+                    <li>Go to <strong>Caching > Configuration</strong></li>
+                    <li>Click <strong>Purge Everything</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section" id="task-10">
+            <h2>Task 10: Validate Cache Key Fix</h2>
+            <p>With the Cache Key rule in place, the vulnerability should be fixed.</p>
+
+            <h3>1. Test Unauthenticated (Now Secure)</h3>
+            <p><strong>Expected:</strong> Now gets <code>403 Forbidden</code></p>
+            <div class="curl-command">
+curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'
+            </div>
+            <div class="success">
+                <strong>✅ Fixed:</strong> Unauthenticated users now get 403, not the cached authenticated response.
+            </div>
+
+            <h3>2. Test Authenticated (Works as Before)</h3>
+            <p><strong>Expected:</strong> Gets <code>200 OK</code></p>
+            <div class="curl-command">
 curl -sIL --cookie "auth_token=my_secret_value" https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'
-    </div>
-    <p>Authenticated users can still access the resource.</p>
-</div>
+            </div>
+            <p>Authenticated users can still access the resource.</p>
+        </div>
 
-<div class="test-section">
-    <h2>Task 11: Test for 'DYNAMIC' Status</h2>
-    <p><code>DYNAMIC</code> is for files Cloudflare doesn't consider cacheable and aren't forced by a rule.</p>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-dynamic-file</span></p>
-    <p><strong>Behavior:</strong> File that CF doesn't consider cacheable</p>
-    <div class="expected-behavior">
-        <strong>Expected:</strong> <code>CF-Cache-Status: DYNAMIC</code>
-    </div>
-    <h3>Curl Command:</h3>
-    <div class="curl-command">
+        <div class="test-section" id="task-11">
+            <h2>Task 11: Test for 'DYNAMIC' Status</h2>
+            <p><code>DYNAMIC</code> is for files Cloudflare doesn't consider cacheable and aren't forced by a rule.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-dynamic-file</span></p>
+            <p><strong>Behavior:</strong> File that CF doesn't consider cacheable</p>
+            <div class="expected-behavior">
+                <strong>Expected:</strong> <code>CF-Cache-Status: DYNAMIC</code>
+            </div>
+            
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-dynamic-file</span> {
+    <span class="directive">default_type</span> <span class="value">text/plain</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "no-cache"</span>;
+    <span class="directive">return</span> <span class="value">200 "This is a dynamic file\n"</span>;
+}</pre>
+            </div>
+            
+            <h3>Curl Command:</h3>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-dynamic-file | grep -i 'HTTP/\|cf-cache-status\|cache-control'
-    </div>
-    <p><strong>What to observe:</strong></p>
-    <ul>
-        <li>Response shows <code>cf-cache-status: DYNAMIC</code></li>
-        <li>This indicates Cloudflare doesn't cache the file</li>
-        <li>Useful for dynamic content that shouldn't be cached</li>
-    </ul>
-</div>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li>Response shows <code>cf-cache-status: DYNAMIC</code></li>
+                <li>This indicates Cloudflare doesn't cache the file</li>
+                <li>Useful for dynamic content that shouldn't be cached</li>
+            </ul>
+        </div>
 
-<div class="test-section">
-    <h2>Task 12: Practice Image Resizing</h2>
-    <div class="dashboard-instruction">
-        <strong>Prerequisite:</strong> Enable transformations in dashboard: Media > Images > Transformations > Enable
-    </div>
+        <div class="test-section" id="task-12">
+            <h2>Task 12: Practice Image Resizing</h2>
+            <div class="dashboard-instruction">
+                <strong>Prerequisite:</strong> Enable transformations in dashboard: Media > Images > Transformations > Enable
+            </div>
+            
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-resize/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public"</span>;
+}</pre>
+            </div>
 
-    <h3>1. Baseline Test (Original)</h3>
-    <p>Check the original image size and status.</p>
-    <p><strong>Endpoint:</strong> <span class="endpoint">/test-resize/resize-me.jpg</span></p>
-    <div class="curl-command">
+            <h3>1. Baseline Test (Original)</h3>
+            <p>Check the original image size and status.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-resize/resize-me.jpg</span></p>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/test-resize/resize-me.jpg | grep -i 'HTTP/\|content-length\|content-type'
-    </div>
-    <p>Note the <code>Content-Length</code> for comparison.</p>
+            </div>
+            <p>Note the <code>Content-Length</code> for comparison.</p>
 
-    <h3>2. Resize Test (Transformed)</h3>
-    <p>Request the resized version with width=100 and quality=10.</p>
-    <div class="curl-command">
+            <h3>2. Resize Test (Transformed)</h3>
+            <p>Request the resized version with width=100 and quality=10.</p>
+            <div class="curl-command">
 curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/resize-me.jpg | grep -i 'HTTP/\|content-length\|content-type'
-    </div>
-    <div class="success">
-        <strong>✅ Success:</strong> You should see a smaller Content-Length compared to the baseline. Cloudflare transformed the image on-the-fly!
-    </div>
-    <p><strong>What to observe:</strong></p>
-    <ul>
-        <li><code>Content-Type: image/jpeg</code> (unchanged)</li>
-        <li><code>Content-Length</code> is significantly smaller</li>
-        <li>Image is resized to 100px width with quality 10</li>
-        <li>The transformation URL format: <code>/cdn-cgi/image/width=100,quality=10/PATH</code></li>
-    </ul>
-</div>
+            </div>
+            <div class="success">
+                <strong>✅ Success:</strong> You should see a smaller Content-Length compared to the baseline. Cloudflare transformed the image on-the-fly!
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li><code>Content-Type: image/jpeg</code> (unchanged)</li>
+                <li><code>Content-Length</code> is significantly smaller</li>
+                <li>Image is resized to 100px width with quality 10</li>
+                <li>The transformation URL format: <code>/cdn-cgi/image/width=100,quality=10/PATH</code></li>
+            </ul>
+        </div>
 
-<div class="test-section">
-    <h2>🎉 Test Plan Complete!</h2>
-    <p>You have tested:</p>
-    <ul>
-        <li>Default caching behaviors</li>
-        <li>Fixed them with Origin Cache Control rule</li>
-        <li>Secured cookie-based caching with Cache Key rule</li>
-        <li>Practiced Image Resizing transformations</li>
-    </ul>
-    <p>You now have a deep understanding of how Cloudflare caching works and how to configure it correctly.</p>
+        <div class="test-section">
+            <h2>🎉 Test Plan Complete!</h2>
+            <p>You have tested:</p>
+            <ul>
+                <li>Default caching behaviors</li>
+                <li>Fixed them with Origin Cache Control rule</li>
+                <li>Secured cookie-based caching with Cache Key rule</li>
+                <li>Practiced Image Resizing transformations</li>
+            </ul>
+            <p>You now have a deep understanding of how Cloudflare caching works and how to configure it correctly.</p>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -333,6 +516,27 @@ curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/res
         const oldContent = element.textContent;
         element.textContent = oldContent.replace(/YOUR_DOMAIN/g, currentHostname);
         console.log('Replaced in element', index, ':', oldContent.includes('YOUR_DOMAIN') ? 'YES' : 'NO');
+    });
+    
+    // Highlight active navigation link
+    const sections = document.querySelectorAll('.test-section[id]');
+    const navLinks = document.querySelectorAll('.sidebar-nav a');
+    
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (scrollY >= sectionTop - 100) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
     });
 })();
 </script>
