@@ -40,6 +40,7 @@
             <li><a href="#task-15">Task 15: Browser vs Edge TTL</a></li>
             <li><a href="#task-16">Task 16: Stale-While-Revalidate</a></li>
             <li><a href="#task-17">Task 17: Query String</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
         </ul>
     </aside>
 
@@ -71,9 +72,9 @@
                     <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-swr/data.json" target="_blank">data.json</a> <span class="comment">&lt;-- Task 16: Stale-While-Revalidate</span></div>
                     <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;├── <a href="/test-query/test1.jpg" target="_blank">test1.jpg</a> <span class="comment">&lt;-- Task 17: Query String</span></div>
                     <div class="file-tree-line file">&nbsp;&nbsp;&nbsp;&nbsp;└── <a href="/test-dynamic-file" target="_blank">dynamic-page.html</a> <span class="comment">&lt;-- Task 11: DYNAMIC Status</span></div>
-                </div>
-            </div>
         </div>
+    </div>
+</div>
 
         <div class="test-section" id="prerequisites">
             <h2>📋 Prerequisites</h2>
@@ -90,7 +91,10 @@
 
         <div class="test-section" id="task-1">
             <div class="task-header">
-                <h2>Task 1: Test Default Cache (No Headers)</h2>
+                <div class="task-title-row">
+                    <h2>Task 1: Test Default Cache (No Headers)</h2>
+                    <span class="task-time">⏱️ ~3 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -118,6 +122,21 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-no-header/public.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">First Request:</div>
+                <pre>HTTP/2 200
+cf-cache-status: MISS
+cache-control: public, max-age=14400</pre>
+
+                <div class="output-title">Second Request (run same command again):</div>
+                <pre>HTTP/2 200
+cf-cache-status: HIT
+cache-control: public, max-age=14400
+age: 5</pre>
+            </div>
+
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>First request shows <code>cf-cache-status: MISS</code></li>
@@ -128,7 +147,10 @@
 
         <div class="test-section" id="task-2">
             <div class="task-header">
-                <h2>Task 2: Test Default 404 Cache</h2>
+                <div class="task-title-row">
+                    <h2>Task 2: Test Default 404 Cache</h2>
+                    <span class="task-time">⏱️ ~2 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -153,6 +175,18 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-404.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">First Request:</div>
+                <pre>HTTP/2 404
+cf-cache-status: MISS</pre>
+
+                <div class="output-title">Second Request:</div>
+                <pre>HTTP/2 404
+cf-cache-status: HIT</pre>
+            </div>
+
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>First request shows <code>HTTP/1.1 404 Not Found</code> and <code>cf-cache-status: MISS</code></li>
@@ -163,7 +197,10 @@
 
         <div class="test-section" id="task-3">
             <div class="task-header">
-                <h2>Task 3: Observe Ignored Origin TTL</h2>
+                <div class="task-title-row">
+                    <h2>Task 3: Observe Ignored Origin TTL</h2>
+                    <span class="task-time">⏱️ ~3 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -188,6 +225,15 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-public/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+cf-cache-status: MISS
+cache-control: public, max-age=14400</pre>
+                <p class="output-note">⚠️ Notice: Origin sent max-age=600, but CF responds with max-age=14400 (CF's default)</p>
+            </div>
+
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>Origin sends <code>max-age=600</code> (10 minutes)</li>
@@ -198,7 +244,10 @@
 
         <div class="test-section" id="task-4">
             <div class="task-header">
-                <h2>Task 4: Observe Ignored 'private' Header</h2>
+                <div class="task-title-row">
+                    <h2>Task 4: Observe Ignored 'private' Header</h2>
+                    <span class="task-time">⏱️ ~3 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -206,7 +255,7 @@
             <p>Origin sends <code>Cache-Control: private</code>.</p>
             <p><strong>Endpoint:</strong> <span class="endpoint">/test-private/test3.jpg</span></p>
             <div class="warning">
-                <strong>Observe This:</strong> You'll see <code>MISS</code>. This is incorrect - according to documentation, it should be <code>BYPASS</code>.
+                <strong>⚠️ Observe This:</strong> You'll see <code>MISS</code> on every request. Cloudflare is ignoring the 'private' directive by default. After enabling Origin Cache Control in Task 6, this will correctly show <code>BYPASS</code>.
             </div>
             
             <h3>Origin Server Configuration (nginx)</h3>
@@ -223,6 +272,16 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-private/test3.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">Every Request:</div>
+                <pre>HTTP/2 200
+cf-cache-status: MISS
+cache-control: private</pre>
+                <p class="output-note">⚠️ Always MISS because CF ignores 'private' by default</p>
+            </div>
+
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>Every request shows <code>cf-cache-status: MISS</code></li>
@@ -233,7 +292,10 @@
 
         <div class="test-section" id="task-5">
             <div class="task-header">
-                <h2>Task 5: Observe Ignored 'Set-Cookie' Header</h2>
+                <div class="task-title-row">
+                    <h2>Task 5: Observe Ignored 'Set-Cookie' Header</h2>
+                    <span class="task-time">⏱️ ~3 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -241,7 +303,7 @@
             <p>Origin sends a <code>Set-Cookie</code> header in the response.</p>
             <p><strong>Endpoint:</strong> <span class="endpoint">/test-set-cookie/test1.jpg</span></p>
             <div class="warning">
-                <strong>Observe This:</strong> You'll see <code>MISS</code>. This is incorrect - docs say Set-Cookie should trigger <code>BYPASS</code>.
+                <strong>⚠️ Observe This:</strong> You'll see <code>MISS</code> on every request. Cloudflare is ignoring the Set-Cookie header by default. After enabling Origin Cache Control in Task 6, this will correctly show <code>BYPASS</code>.
             </div>
             
             <h3>Origin Server Configuration (nginx)</h3>
@@ -258,6 +320,16 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|set-cookie'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">Every Request:</div>
+                <pre>HTTP/2 200
+cf-cache-status: MISS
+set-cookie: test=value; Path=/</pre>
+                <p class="output-note">⚠️ Always MISS because CF ignores Set-Cookie by default</p>
+            </div>
+
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>Every request shows <code>cf-cache-status: MISS</code></li>
@@ -268,7 +340,10 @@
 
         <div class="test-section" id="task-6">
             <div class="task-header">
-                <h2>Task 6: Create "Origin Cache Control" Rule</h2>
+                <div class="task-title-row">
+                    <h2>Task 6: Create "Origin Cache Control" Rule</h2>
+                    <span class="task-time">⏱️ ~8 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -295,7 +370,10 @@
 
         <div class="test-section" id="task-7">
             <div class="task-header">
-                <h2>Task 7: Validate "Origin Cache Control" Fix</h2>
+                <div class="task-title-row">
+                    <h2>Task 7: Validate "Origin Cache Control" Fix</h2>
+                    <span class="task-time">⏱️ ~10 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -317,6 +395,14 @@
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
 
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+cf-cache-status: MISS
+cache-control: public, max-age=600</pre>
+                <p class="output-note">✅ Now shows max-age=600 (origin is respected!)</p>
+            </div>
+
             <h3>2. Validate Private (Task 4)</h3>
             <p><strong>Expected:</strong> Now shows <code>BYPASS</code></p>
             
@@ -332,6 +418,14 @@
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
 
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+cf-cache-status: BYPASS
+cache-control: private</pre>
+                <p class="output-note">✅ Now correctly shows BYPASS!</p>
+            </div>
+
             <h3>3. Validate Set-Cookie (Task 5)</h3>
             <p><strong>Expected:</strong> Now shows <code>BYPASS</code></p>
             
@@ -345,6 +439,14 @@
             <div class="curl-command">
                 <pre>curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\|cf-cache-status\|set-cookie'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+cf-cache-status: BYPASS
+set-cookie: test=value; Path=/</pre>
+                <p class="output-note">✅ Now correctly shows BYPASS!</p>
             </div>
 
             <h3>4. Validate Revalidate</h3>
@@ -401,7 +503,10 @@
 
         <div class="test-section" id="task-8">
             <div class="task-header">
-                <h2>Task 8: Discover Cache Poisoning Flaw</h2>
+                <div class="task-title-row">
+                    <h2>Task 8: Discover Cache Poisoning Flaw</h2>
+                    <span class="task-time">⏱️ ~5 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -432,6 +537,13 @@
                 <pre>curl -sIL --cookie "auth_token=my_secret_value" https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+cf-cache-status: MISS</pre>
+            </div>
+
             <p><strong>What happens:</strong></p>
             <ul>
                 <li>Request succeeds with <code>200 OK</code></li>
@@ -444,6 +556,13 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+cf-cache-status: HIT</pre>
+                <p class="output-note">🚨 SECURITY FLAW: Unauthenticated user got cached authenticated response!</p>
+            </div>
             <div class="warning">
                 <strong>⚠️ FLAW DISCOVERED:</strong> The unauthenticated request gets <code>200 OK</code> and <code>HIT</code> - it's being served the cached authenticated response!
             </div>
@@ -452,7 +571,10 @@
 
         <div class="test-section" id="task-9">
             <div class="task-header">
-                <h2>Task 9: Create "Cache Key" Rule</h2>
+                <div class="task-title-row">
+                    <h2>Task 9: Create "Cache Key" Rule</h2>
+                    <span class="task-time">⏱️ ~8 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -482,7 +604,10 @@
 
         <div class="test-section" id="task-10">
             <div class="task-header">
-                <h2>Task 10: Validate Cache Key Fix</h2>
+                <div class="task-title-row">
+                    <h2>Task 10: Validate Cache Key Fix</h2>
+                    <span class="task-time">⏱️ ~4 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -495,6 +620,14 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 403
+cf-cache-status: BYPASS or MISS</pre>
+                <p class="output-note">✅ Security fixed! Unauthenticated users now correctly get 403</p>
+            </div>
+
             <div class="success">
                 <strong>✅ Fixed:</strong> Unauthenticated users now get 403, not the cached authenticated response.
             </div>
@@ -505,12 +638,22 @@
                 <pre>curl -sIL --cookie "auth_token=my_secret_value" https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-cache-status'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+cf-cache-status: MISS or HIT</pre>
+                <p class="output-note">✅ Authenticated users can still access</p>
+            </div>
             <p>Authenticated users can still access the resource.</p>
         </div>
 
         <div class="test-section" id="task-11">
             <div class="task-header">
-                <h2>Task 11: Test for 'DYNAMIC' Status</h2>
+                <div class="task-title-row">
+                    <h2>Task 11: Test for 'DYNAMIC' Status</h2>
+                    <span class="task-time">⏱️ ~3 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -565,6 +708,15 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-dynamic-file | grep -i 'HTTP/\|cf-cache-status\|cache-control'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+cf-cache-status: DYNAMIC
+content-type: text/html</pre>
+                <p class="output-note">HTML files return DYNAMIC - not cacheable by default</p>
+            </div>
+
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>Response shows <code>cf-cache-status: DYNAMIC</code></li>
@@ -575,13 +727,20 @@
 
         <div class="test-section" id="task-12">
             <div class="task-header">
-                <h2>Task 12: Practice Image Resizing</h2>
+                <div class="task-title-row">
+                    <h2>Task 12: Practice Image Resizing</h2>
+                    <span class="task-time">⏱️ ~10 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
             </div>
             <div class="dashboard-instruction">
                 <strong>Prerequisite:</strong> Enable transformations in dashboard: Media > Images > Transformations > Enable
+            </div>
+            <div class="info-box">
+                <strong>ℹ️ Plan Requirements:</strong> Image Resizing is available on Pro, Business, and Enterprise plans. Free plan users can view this task to understand how it works, but won't be able to test it.
+                <a href="https://developers.cloudflare.com/images/image-resizing/#availability" target="_blank">Check availability →</a>
             </div>
 
             <h3>Origin Server Configuration (nginx)</h3>
@@ -600,13 +759,29 @@
                 <pre>curl -sIL https://YOUR_DOMAIN/test-resize/resize-me.jpg | grep -i 'HTTP/\|content-length\|content-type'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
-            <p>Note <code>Content-Length</code> for comparison.</p>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+content-length: 245678
+content-type: image/jpeg</pre>
+                <p class="output-note">Note the Content-Length for comparison</p>
+            </div>
 
             <h3>2. Resize Test (Transformed)</h3>
             <p>Request the resized version with width=100 and quality=10.</p>
             <div class="curl-command">
                 <pre>curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/resize-me.jpg | grep -i 'HTTP/\|content-length\|content-type'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <pre>HTTP/2 200
+content-length: 3421
+content-type: image/jpeg
+cf-resized: 1</pre>
+                <p class="output-note">✅ Much smaller! Cloudflare resized the image</p>
             </div>
             <div class="success">
                 <strong>✅ Success:</strong> You should see a smaller Content-Length compared to the baseline. Cloudflare transformed the image on-the-fly!
@@ -622,7 +797,10 @@
 
         <div class="test-section" id="task-13">
             <div class="task-header">
-                <h2>Task 13: Cache-Tags (Selective Purging)</h2>
+                <div class="task-title-row">
+                    <h2>Task 13: Cache-Tags (Selective Purging)</h2>
+                    <span class="task-time">⏱️ ~8 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -687,11 +865,28 @@ curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cf-cach
 curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cf-cache-status'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">First Request:</div>
+                <pre>cache-tag: product-123, category-shoes
+cf-cache-status: MISS</pre>
+
+                <div class="output-title">Second Request:</div>
+                <pre>cf-cache-status: HIT</pre>
+
+                <div class="output-title">After Purging Tag 'product-123':</div>
+                <pre>cf-cache-status: MISS</pre>
+                <p class="output-note">Cache was selectively purged by tag!</p>
+            </div>
         </div>
 
         <div class="test-section" id="task-14">
             <div class="task-header">
-                <h2>Task 14: Vary Header (Cache Key Variations)</h2>
+                <div class="task-title-row">
+                    <h2>Task 14: Vary Header (Cache Key Variations)</h2>
+                    <span class="task-time">⏱️ ~6 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -713,8 +908,10 @@ curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cf-cach
                     <h4>Cache Fragmentation Analysis:</h4>
                     <ul>
                         <li><strong>1 Vary header</strong> (Accept-Encoding): 3 cache entries (gzip, br, none)</li>
-                        <li><strong>2 Vary headers</strong> (+ Accept-Language): 15 cache entries (3 × 5)</li>
-                        <li><strong>3 Vary headers</strong> (+ User-Agent): 45 cache entries (3 × 5 × 3)</li>
+                        <li><strong>2 Vary headers</strong> (+ Accept-Language): 15 cache entries
+                            <br><em>3 encodings × 5 languages = 15 variations</em></li>
+                        <li><strong>3 Vary headers</strong> (+ User-Agent): 45 cache entries
+                            <br><em>3 encodings × 5 languages × 3 user-agent types (desktop/mobile/bot) = 45 variations</em></li>
                     </ul>
                     <p>More Vary headers = exponential cache fragmentation = lower cache hit ratio!</p>
                     <h4>Best Practice:</h4>
@@ -752,6 +949,26 @@ curl -sI https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status
 curl -sI -H "Accept-Encoding: gzip" https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">Request 1 (gzip):</div>
+                <pre>cf-cache-status: MISS
+content-encoding: gzip
+vary: Accept-Encoding</pre>
+
+                <div class="output-title">Request 2 (brotli):</div>
+                <pre>cf-cache-status: MISS
+vary: Accept-Encoding</pre>
+
+                <div class="output-title">Request 3 (no encoding):</div>
+                <pre>cf-cache-status: MISS
+vary: Accept-Encoding</pre>
+
+                <div class="output-title">Repeat Request 1 (gzip):</div>
+                <pre>cf-cache-status: HIT</pre>
+                <p class="output-note">Different Accept-Encoding = different cache entries</p>
+            </div>
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>Each different <code>Accept-Encoding</code> value creates a separate cache entry</li>
@@ -762,7 +979,10 @@ curl -sI -H "Accept-Encoding: gzip" https://YOUR_DOMAIN/test-vary/compressed.txt
 
         <div class="test-section" id="task-15">
             <div class="task-header">
-                <h2>Task 15: Browser vs Edge TTL</h2>
+                <div class="task-title-row">
+                    <h2>Task 15: Browser vs Edge TTL</h2>
+                    <span class="task-time">⏱️ ~4 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -828,6 +1048,19 @@ curl -sI https://YOUR_DOMAIN/test-browser-edge-ttl/asset.js | grep -i 'cache-con
 # age: [seconds since cached]</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">First Request:</div>
+                <pre>cache-control: public, max-age=300, s-maxage=3600
+cf-cache-status: MISS</pre>
+
+                <div class="output-title">Second Request:</div>
+                <pre>cache-control: public, max-age=300, s-maxage=3600
+cf-cache-status: HIT
+age: 15</pre>
+                <p class="output-note">max-age=300 (5 min browser), s-maxage=3600 (1 hour edge)</p>
+            </div>
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li><code>max-age=300</code> tells browser to cache for 5 minutes</li>
@@ -838,7 +1071,10 @@ curl -sI https://YOUR_DOMAIN/test-browser-edge-ttl/asset.js | grep -i 'cache-con
 
         <div class="test-section" id="task-16">
             <div class="task-header">
-                <h2>Task 16: Stale-While-Revalidate</h2>
+                <div class="task-title-row">
+                    <h2>Task 16: Stale-While-Revalidate</h2>
+                    <span class="task-time">⏱️ ~5 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -899,6 +1135,22 @@ curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status\|age'
 curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status'</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">Request 1 (fresh):</div>
+                <pre>cf-cache-status: HIT
+cache-control: public, max-age=10, stale-while-revalidate=60
+age: 3</pre>
+
+                <div class="output-title">Request 2 (after 12 seconds):</div>
+                <pre>cf-cache-status: STALE
+age: 14</pre>
+                <p class="output-note">Served stale content instantly while revalidating in background!</p>
+
+                <div class="output-title">Request 3 (immediately after):</div>
+                <pre>cf-cache-status: HIT or REVALIDATED</pre>
+            </div>
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>First 10 seconds: Response is <code>HIT</code> (fresh)</li>
@@ -909,7 +1161,10 @@ curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status'</pre
 
         <div class="test-section" id="task-17">
             <div class="task-header">
-                <h2>Task 17: Query String Handling</h2>
+                <div class="task-title-row">
+                    <h2>Task 17: Query String Handling</h2>
+                    <span class="task-time">⏱️ ~10 min</span>
+                </div>
                 <label class="checkbox-container">
                     <input type="checkbox" onchange="updateProgress()"> Mark as complete
                 </label>
@@ -934,12 +1189,36 @@ curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status'</pre
                         Marketing campaigns add <code>?utm_source=email&utm_campaign=spring2024</code> to all links. Without ignoring
                         these parameters, the same page has dozens of cache entries, wasting cache space and reducing hit ratio.
                     </p>
-                    <h4>Dashboard Configuration (Optional):</h4>
-                    <p>Create Cache Rule to ignore certain parameters:</p>
-                    <pre class="pre-light">
-When: URI Path contains "/test-query/"
-Then: Cache Key → Custom → Query String → Include all except "debug"
-                    </pre>
+                    <h3>Optional: Create Cache Rule to Ignore Query Parameters</h3>
+                    <div class="dashboard-instruction">
+                        <strong>Dashboard Action (Optional - for advanced testing):</strong>
+                        <p>To test how query parameter exclusions work, create this cache rule:</p>
+                        <ol>
+                            <li>Go to <strong>Caching > Cache Rules</strong> in Cloudflare Dashboard</li>
+                            <li>Click <strong>Create rule</strong></li>
+                            <li><strong>Rule Name:</strong> <code>3. Ignore Debug Query Param</code></li>
+                            <li><strong>When incoming requests match...</strong>
+                                <ul>
+                                    <li>Field: <code>URI Path</code></li>
+                                    <li>Operator: <code>contains</code></li>
+                                    <li>Value: <code>/test-query/</code></li>
+                                </ul>
+                            </li>
+                            <li><strong>Then...</strong> (scroll down to Cache Key section)
+                                <ul>
+                                    <li>Click <strong>Cache key</strong></li>
+                                    <li>Select <strong>Custom cache key</strong></li>
+                                    <li>In the <strong>Query string</strong> subsection:</li>
+                                    <li>Select <strong>Include all query string parameters except</strong></li>
+                                    <li>In the text field, enter: <code>debug</code></li>
+                                </ul>
+                            </li>
+                            <li>Click <strong>Deploy</strong></li>
+                            <li>Go to <strong>Caching > Configuration</strong></li>
+                            <li>Click <strong>Purge Everything</strong></li>
+                        </ol>
+                        <p><strong>Then test:</strong> Different <code>debug</code> values should now share the same cache entry!</p>
+                    </div>
                     <div class="cost-impact">
                         <strong>💰 Cost Impact:</strong> Ignoring tracking parameters can improve cache hit ratio from 60% to 95%,
                         dramatically reducing origin load and bandwidth costs.
@@ -973,12 +1252,120 @@ curl -sI "https://YOUR_DOMAIN/test-query/test1.jpg" | grep cf-cache-status
 # All three should share same cache (debug ignored)</pre>
                 <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
+
+            <h3>Expected Output:</h3>
+            <div class="output-example">
+                <div class="output-title">Without Cache Rule:</div>
+                <pre># Request 1: ?v=1
+cf-cache-status: MISS
+# Request 2: ?v=1 (same)
+cf-cache-status: HIT
+# Request 3: ?v=2 (different)
+cf-cache-status: MISS</pre>
+                <p class="output-note">Different query strings = different cache entries</p>
+
+                <div class="output-title">With Cache Rule (ignoring 'debug'):</div>
+                <pre># Request 1: ?debug=true
+cf-cache-status: MISS
+# Request 2: ?debug=false (different value)
+cf-cache-status: HIT
+# Request 3: no query string
+cf-cache-status: HIT</pre>
+                <p class="output-note">✅ All share same cache - 'debug' parameter ignored!</p>
+            </div>
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>Without cache rule: Each query string variation creates separate cache entry</li>
                 <li>With cache rule ignoring 'debug': Different debug values share same cache entry</li>
                 <li>This dramatically improves cache efficiency</li>
             </ul>
+        </div>
+
+        <div class="test-section" id="troubleshooting">
+            <h2>🔧 Troubleshooting</h2>
+            <p>Having issues? Here are common problems and solutions:</p>
+
+            <div class="troubleshooting-item">
+                <h3>❌ Problem: "Could not resolve host"</h3>
+                <p><strong>Solution:</strong> The domain placeholder wasn't replaced. Make sure you're using the domain shown in the curl commands (should auto-replace YOUR_DOMAIN). If copying from elsewhere, manually replace with your actual domain.</p>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h3>❌ Problem: Getting 404 on test endpoints</h3>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Verify nginx container is running: <code>docker ps</code></li>
+                    <li>Check nginx logs: <code>docker-compose logs nginx</code></li>
+                    <li>Rebuild and redeploy: <code>./deploy.sh</code></li>
+                    <li>Verify test files exist in <code>test-files/modules/caching/</code></li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h3>❌ Problem: Always getting DYNAMIC instead of MISS/HIT</h3>
+                <p><strong>Solution:</strong> You might be testing an HTML file or non-cacheable file type. Verify you're using the exact endpoints from the tasks (should be .jpg files for most tests).</p>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h3>❌ Problem: Origin Cache Control rule not working (Task 7)</h3>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Verify the rule is <strong>deployed</strong> (not just saved) in Cloudflare Dashboard</li>
+                    <li>Make sure you clicked <strong>Purge Everything</strong> after creating the rule</li>
+                    <li>Wait 30-60 seconds for rule propagation across Cloudflare's network</li>
+                    <li>Check rule order - Origin Cache Control should be Rule #1</li>
+                    <li>Verify the hostname matches exactly (check for typos)</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h3>❌ Problem: Image Resizing returns 403 or 9412 error</h3>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Verify your Cloudflare plan includes Image Resizing (Pro, Business, or Enterprise only)</li>
+                    <li>Enable in Dashboard: <strong>Media > Images > Transformations > Enable</strong></li>
+                    <li>Wait 2-3 minutes after enabling for feature activation</li>
+                    <li>Free plan users: You can skip Task 12 or read it for understanding</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h3>❌ Problem: Cache-Tags purge not working (Task 13)</h3>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Verify response includes Cache-Tag header: <code>curl -I https://DOMAIN/test-cache-tags/product-123.jpg | grep -i cache-tag</code></li>
+                    <li>Tag names are case-sensitive - use exact match: <code>product-123</code></li>
+                    <li>Wait 30 seconds after purging before testing</li>
+                    <li>In dashboard, make sure you selected "Purge by Tag" not "Purge Everything"</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h3>❌ Problem: Not seeing cf-cache-status header</h3>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Make sure your site is proxied through Cloudflare (orange cloud in DNS settings)</li>
+                    <li>Cloudflare Tunnel should be active and connected</li>
+                    <li>Check tunnel status: <code>docker-compose logs cloudflared</code></li>
+                    <li>If testing locally (localhost), cf-cache-status won't appear - use your Cloudflare domain</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h3>❌ Problem: Cookie auth (Task 8) shows 403 immediately</h3>
+                <p><strong>Solution:</strong> Make sure you're using the exact cookie syntax: <code>--cookie "auth_token=my_secret_value"</code> (note the quotes and exact token value).</p>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h3>Still having issues?</h3>
+                <p>Check the main <a href="https://github.com/cougz/awesome-cloudflare-demos#-troubleshooting">repository README troubleshooting section</a> or open an issue on GitHub with:</p>
+                <ul>
+                    <li>The task number you're stuck on</li>
+                    <li>The exact curl command you ran</li>
+                    <li>The output you received</li>
+                    <li>Your Cloudflare plan type</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -1018,6 +1405,82 @@ curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/res
         </div>
     </div>
 </div>
+
+<style>
+.info-box {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 4px;
+}
+.info-box a {
+    color: #1976d2;
+    text-decoration: underline;
+}
+.output-example {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+.output-title {
+    color: #4fc3f7;
+    font-weight: 600;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+.output-example pre {
+    margin: 0;
+    padding: 8px;
+    color: #a5d6a7;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+.output-note {
+    color: #ffb74d;
+    margin-top: 8px;
+    font-size: 13px;
+    font-style: italic;
+}
+.task-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.task-time {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+    background: #f5f5f5;
+    padding: 4px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+.troubleshooting-item {
+    background: #f9f9f9;
+    border-left: 4px solid #ff9800;
+    padding: 16px;
+    margin: 16px 0;
+    border-radius: 4px;
+}
+.troubleshooting-item h3 {
+    margin-top: 0;
+    color: #e65100;
+    font-size: 16px;
+}
+.troubleshooting-item code {
+    background: #e0e0e0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+</style>
 
 <script>
 (function() {

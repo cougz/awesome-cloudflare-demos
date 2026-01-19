@@ -4,7 +4,7 @@ A modular platform demonstrating Cloudflare product behavior through executable 
 
 ## 🧩 Modules
 
-- **⚡ Caching** - Learn Cloudflare caching behavior through 11 comprehensive tests
+ - **⚡ Caching** - Learn Cloudflare caching behavior through 17 comprehensive tests
 
 ## 🚀 Quick Start
 
@@ -189,14 +189,18 @@ docker-compose down
 
 ### Caching (⚡)
 
-11 comprehensive tests covering:
-- Default caching behavior
-- Origin TTL handling
-- Private/Set-Cookie header handling
-- Origin Cache Control rules
-- Cache key configuration
-- Cookie-based authentication
-- Image resizing transformations
+17 comprehensive tests covering:
+- Default caching behavior (Tasks 1-2)
+- Origin TTL and header handling (Tasks 3-5)
+- Origin Cache Control rules (Tasks 6-7)
+- Cache poisoning vulnerability and fix (Tasks 8-10)
+- DYNAMIC status and file types (Task 11)
+- Image resizing transformations (Task 12)
+- Cache-Tags for selective purging (Task 13)
+- Vary header and cache fragmentation (Task 14)
+- Browser vs Edge TTL differences (Task 15)
+- Stale-While-Revalidate strategy (Task 16)
+- Query string handling (Task 17)
 
 [View Caching Test Guide](#caching-module-details)
 

@@ -9,6 +9,7 @@
     {
       "id": 1,
       "name": "Default Cache (No Headers)",
+      "estimated_time": "3 min",
       "description": "Tests Cloudflare's default behavior for a standard cacheable file (.jpg) when origin sends no Cache-Control",
       "endpoint": "/test-no-header/public.jpg",
       "behavior": "Origin sends NO Cache-Control header",
@@ -20,6 +21,7 @@
     {
       "id": 2,
       "name": "Default 404 Cache",
+      "estimated_time": "2 min",
       "description": "Tests Cloudflare's default behavior for 404 errors",
       "endpoint": "/test-404.jpg",
       "behavior": "File doesn't exist - returns 404",
@@ -31,6 +33,7 @@
     {
       "id": 3,
       "name": "Origin TTL (Ignored by Default)",
+      "estimated_time": "3 min",
       "description": "Observes that Cloudflare ignores origin's max-age setting by default",
       "endpoint": "/test-public/test1.jpg",
       "behavior": "Origin sends Cache-Control: max-age=600 (10 min)",
@@ -42,10 +45,11 @@
     {
       "id": 4,
       "name": "Private Header (Ignored by Default)",
+      "estimated_time": "3 min",
       "description": "Tests Cloudflare's behavior with 'private' directive",
       "endpoint": "/test-private/test3.jpg",
       "behavior": "Origin sends Cache-Control: private",
-      "expected": "MISS (incorrect - should be BYPASS)",
+      "expected": "MISS on every request (Cloudflare ignores 'private' directive by default - will become BYPASS after Task 6)",
       "commands": [
         "curl -sIL https://YOUR_DOMAIN/test-private/test3.jpg | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
       ]
@@ -53,10 +57,11 @@
     {
       "id": 5,
       "name": "Set-Cookie Header (Ignored by Default)",
+      "estimated_time": "3 min",
       "description": "Tests Cloudflare's behavior with Set-Cookie header",
       "endpoint": "/test-set-cookie/test1.jpg",
       "behavior": "Response includes Set-Cookie: test=value",
-      "expected": "MISS (incorrect - Set-Cookie should trigger BYPASS)",
+      "expected": "MISS on every request (Cloudflare ignores Set-Cookie header by default - will become BYPASS after Task 6)",
       "commands": [
         "curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\\|cf-cache-status\\|set-cookie'"
       ]
@@ -64,6 +69,7 @@
     {
       "id": 6,
       "name": "Create Origin Cache Control Rule",
+      "estimated_time": "8 min",
       "description": "Dashboard configuration step to enable origin cache control",
       "endpoint": null,
       "behavior": "Configuration step - no test endpoint",
@@ -80,6 +86,7 @@
     {
       "id": 7,
       "name": "Validate Origin Cache Control Fix",
+      "estimated_time": "10 min",
       "description": "Re-run failed tests to validate they now work with Origin Cache Control enabled",
       "endpoint": "/test-public/test1.jpg",
       "behavior": "After enabling Origin Cache Control",
@@ -126,6 +133,7 @@
     {
       "id": 8,
       "name": "Cache Poisoning Flaw",
+      "estimated_time": "5 min",
       "description": "Discovers cache poisoning vulnerability with cookie-based authentication",
       "endpoint": "/test-cookie-auth/secret.jpg",
       "behavior": "Auth'd request poisons cache, unauth'd request gets poisoned cache",
@@ -142,6 +150,7 @@
     {
       "id": 9,
       "name": "Create Cache Key Rule",
+      "estimated_time": "8 min",
       "description": "Dashboard configuration step to fix cookie auth caching",
       "endpoint": null,
       "behavior": "Configuration step - no test endpoint",
@@ -161,6 +170,7 @@
     {
       "id": 10,
       "name": "Validate Cache Key Fix",
+      "estimated_time": "4 min",
       "description": "Validates that cache key rule fixes the cookie auth vulnerability",
       "endpoint": "/test-cookie-auth/secret.jpg",
       "behavior": "After creating Cache Key rule",
@@ -183,6 +193,7 @@
     {
       "id": 11,
       "name": "Test DYNAMIC Status",
+      "estimated_time": "3 min",
       "description": "Tests for files Cloudflare doesn't consider cacheable by default (HTML files)",
       "endpoint": "/test-dynamic-file",
       "behavior": "HTML file with no Cache-Control header",
@@ -194,6 +205,7 @@
     {
       "id": 12,
       "name": "Image Resizing",
+      "estimated_time": "10 min",
       "description": "Practice Cloudflare Image Transformations",
       "endpoint": "/test-resize/resize-me.jpg",
       "behavior": "Use Cloudflare's image transformation API",
@@ -219,6 +231,7 @@
     {
       "id": 13,
       "name": "Cache-Tags (Selective Purging)",
+      "estimated_time": "8 min",
       "description": "Demonstrates selective cache purging using Cache-Tags",
       "endpoint": "/test-cache-tags/product-123.jpg",
       "behavior": "Response includes Cache-Tag header: product-123, category-shoes",
@@ -237,6 +250,7 @@
     {
       "id": 14,
       "name": "Vary Header (Cache Key Variations)",
+      "estimated_time": "6 min",
       "description": "Understands how Vary header creates separate cache entries based on Accept-Encoding",
       "endpoint": "/test-vary/compressed.txt",
       "behavior": "Response includes Vary: Accept-Encoding header",
@@ -258,6 +272,7 @@
     {
       "id": 15,
       "name": "Browser vs Edge TTL",
+      "estimated_time": "4 min",
       "description": "Demonstrates the difference between browser caching (max-age) and edge caching (s-maxage)",
       "endpoint": "/test-browser-edge-ttl/asset.js",
       "behavior": "Origin sends Cache-Control: public, max-age=300, s-maxage=3600",
@@ -282,6 +297,7 @@
     {
       "id": 16,
       "name": "Stale-While-Revalidate",
+      "estimated_time": "5 min",
       "description": "Demonstrates serving stale content while background revalidation happens",
       "endpoint": "/test-swr/data.json",
       "behavior": "Origin sends Cache-Control: public, max-age=10, stale-while-revalidate=60",
@@ -302,6 +318,7 @@
     {
       "id": 17,
       "name": "Query String Handling",
+      "estimated_time": "10 min",
       "description": "Demonstrates how query strings affect cache keys and how to ignore them with cache rules",
       "endpoint": "/test-query/test1.jpg",
       "behavior": "Tests different query string variations",
