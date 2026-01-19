@@ -322,6 +322,9 @@ body {
 .module-wrapper {
   display: flex;
   gap: 20px;
+  position: relative;
+  z-index: 3;
+  clear: both;
 }
 
 .sidebar {
@@ -379,6 +382,9 @@ body {
   flex: 1;
   min-width: 0;
   width: 100%;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 /* ============================================
@@ -491,6 +497,9 @@ body {
   margin-bottom: 40px;
   padding-bottom: 30px;
   border-bottom: 1px solid var(--border-color);
+  position: relative;
+  z-index: 1;
+  clear: both;
 }
 
 .test-section:last-child {
@@ -509,18 +518,6 @@ body {
   margin-top: 25px;
   font-size: 1.3em;
   font-weight: 500;
-}
-
-.curl-command {
-  background: #282c34;
-  color: #abb2bf;
-  padding: 15px;
-  border-radius: 8px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  overflow-x: auto;
-  margin: 10px 0;
-  border: 1px solid var(--border-color);
 }
 
 .expected-behavior {
@@ -714,6 +711,9 @@ code {
   border-radius: 12px;
   margin: 20px 0;
   box-shadow: var(--shadow-subtle);
+  position: relative;
+  z-index: 2;
+  clear: both;
 }
 
 .progress-header {
@@ -780,6 +780,9 @@ code {
   border-radius: 8px;
   padding: 20px;
   margin: 20px 0;
+  position: relative;
+  z-index: 2;
+  clear: both;
 }
 
 .cache-status-legend h4 {
