@@ -701,3 +701,307 @@ code {
     padding: 20px;
   }
 }
+
+/* ============================================
+   PROGRESS TRACKER
+   ============================================ */
+
+.progress-tracker {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+  box-shadow: var(--shadow-subtle);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.progress-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.progress-text {
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
+.progress-bar {
+  height: 30px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #4caf50;
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.btn-reset {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid white;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-reset:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   CACHE STATUS LEGEND
+   ============================================ */
+
+.cache-status-legend {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.cache-status-legend h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+  font-size: 1.1em;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85em;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+
+.status-miss { background: #fff3cd; color: #856404; }
+.status-hit { background: #d4edda; color: #155724; }
+.status-bypass { background: #f8d7da; color: #721c24; }
+.status-revalidated { background: #d1ecf1; color: #0c5460; }
+.status-expired { background: #e2e3e5; color: #383d41; }
+.status-stale { background: #fff3cd; color: #856404; }
+.status-dynamic { background: #e7e8ea; color: #1b1e21; }
+.status-updating { background: #cfe2ff; color: #084298; }
+
+/* ============================================
+   TASK HEADER WITH CHECKBOX
+   ============================================ */
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.task-header h2 {
+  margin: 0;
+  flex: 1;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.9em;
+  color: var(--text-secondary);
+}
+
+.checkbox-container input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--cf-orange);
+}
+
+/* ============================================
+   COPY BUTTON
+   ============================================ */
+
+.curl-command {
+  position: relative;
+  background: #282c34;
+  color: #abb2bf;
+  padding: 15px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  overflow-x: auto;
+  margin: 10px 0;
+  border: 1px solid var(--border-color);
+}
+
+.curl-command pre {
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.copy-btn:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+}
+
+/* ============================================
+   WHY THIS MATTERS SECTION
+   ============================================ */
+
+.why-matters {
+  background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+  border-left: 4px solid #667eea;
+  border-radius: 8px;
+  margin: 30px 0;
+  overflow: hidden;
+}
+
+.why-header {
+  background: #667eea;
+  color: white;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.why-content {
+  padding: 20px;
+}
+
+.why-content h4 {
+  color: #667eea;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
+
+.why-content ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.why-content li {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.cost-impact {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 4px;
+}
+
+.cost-impact strong {
+  color: #856404;
+}
+
+/* ============================================
+   BEFORE/AFTER COMPARISON TABLE
+   ============================================ */
+
+.comparison-section {
+  margin: 30px 0;
+}
+
+.comparison-section h3 {
+  color: var(--text-primary);
+  margin-bottom: 15px;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: var(--card-bg);
+  box-shadow: var(--shadow-subtle);
+}
+
+.comparison-table th {
+  background: #333;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.comparison-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.comparison-table tr:hover {
+  background: var(--bg-secondary);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.badge-wrong {
+  background: #ffe0e0;
+  color: #d32f2f;
+}
+
+.badge-correct {
+  background: #e0f7e0;
+  color: #2e7d32;
+}

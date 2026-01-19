@@ -1,0 +1,5 @@
+{
+  "message": "This is test data for Stale-While-Revalidate demonstration",
+  "timestamp": "2024-01-19",
+  "status": "active"
+}

@@ -1,0 +1,2 @@
+This is a test file for demonstrating Vary header behavior.
+Cloudflare will cache different versions based on Accept-Encoding header.

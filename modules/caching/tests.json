@@ -183,10 +183,10 @@
     {
       "id": 11,
       "name": "Test DYNAMIC Status",
-      "description": "Tests for files Cloudflare doesn't consider cacheable",
+      "description": "Tests for files Cloudflare doesn't consider cacheable by default (HTML files)",
       "endpoint": "/test-dynamic-file",
-      "behavior": "File that CF doesn't consider cacheable",
-      "expected": "CF-Cache-Status: DYNAMIC",
+      "behavior": "HTML file with no Cache-Control header",
+      "expected": "CF-Cache-Status: DYNAMIC (not cacheable)",
       "commands": [
         "curl -sIL https://YOUR_DOMAIN/test-dynamic-file | grep -i 'HTTP/\\|cf-cache-status\\|cache-control'"
       ]
@@ -214,6 +214,115 @@
           "expected": "Smaller Content-Length than baseline",
           "command": "curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/resize-me.jpg | grep -i 'HTTP/\\|content-length\\|content-type'"
         }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Cache-Tags (Selective Purging)",
+      "description": "Demonstrates selective cache purging using Cache-Tags",
+      "endpoint": "/test-cache-tags/product-123.jpg",
+      "behavior": "Response includes Cache-Tag header: product-123, category-shoes",
+      "expected": "1st request = MISS, 2nd request = HIT. After purging tag 'product-123': MISS again",
+      "commands": [
+        "# Initial request",
+        "curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cache-tag\\|cf-cache-status'",
+        "",
+        "# Second request (HIT)",
+        "curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cf-cache-status'",
+        "",
+        "# After purging tag via Dashboard (Caching > Configuration > Purge by Tag)",
+        "curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cf-cache-status'"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Vary Header (Cache Key Variations)",
+      "description": "Understands how Vary header creates separate cache entries based on Accept-Encoding",
+      "endpoint": "/test-vary/compressed.txt",
+      "behavior": "Response includes Vary: Accept-Encoding header",
+      "expected": "Different Accept-Encoding values create separate cache entries",
+      "commands": [
+        "# Request 1 - gzip",
+        "curl -sI -H \"Accept-Encoding: gzip\" https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status\\|content-encoding\\|vary'",
+        "",
+        "# Request 2 - brotli",
+        "curl -sI -H \"Accept-Encoding: br\" https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status\\|content-encoding\\|vary'",
+        "",
+        "# Request 3 - no compression",
+        "curl -sI https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status\\|vary'",
+        "",
+        "# Repeat request 1 - should be HIT now",
+        "curl -sI -H \"Accept-Encoding: gzip\" https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status'"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Browser vs Edge TTL",
+      "description": "Demonstrates the difference between browser caching (max-age) and edge caching (s-maxage)",
+      "endpoint": "/test-browser-edge-ttl/asset.js",
+      "behavior": "Origin sends Cache-Control: public, max-age=300, s-maxage=3600",
+      "expected": "Browser caches for 5 minutes, Cloudflare edge caches for 1 hour",
+      "commands": [
+        "# First request",
+        "curl -sI https://YOUR_DOMAIN/test-browser-edge-ttl/asset.js | grep -i 'cache-control\\|cf-cache-status'",
+        "",
+        "# Expected output:",
+        "# cache-control: public, max-age=300, s-maxage=3600",
+        "# cf-cache-status: MISS",
+        "",
+        "# Second request (within 1 hour)",
+        "curl -sI https://YOUR_DOMAIN/test-browser-edge-ttl/asset.js | grep -i 'cache-control\\|cf-cache-status\\|age'",
+        "",
+        "# Expected output:",
+        "# cache-control: public, max-age=300, s-maxage=3600",
+        "# cf-cache-status: HIT",
+        "# age: [seconds since cached]"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Stale-While-Revalidate",
+      "description": "Demonstrates serving stale content while background revalidation happens",
+      "endpoint": "/test-swr/data.json",
+      "behavior": "Origin sends Cache-Control: public, max-age=10, stale-while-revalidate=60",
+      "expected": "First 10 seconds: HIT, After 10s: STALE (served while revalidating)",
+      "commands": [
+        "# Request 1 - fresh cache",
+        "curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status\\|cache-control\\|age'",
+        "",
+        "# Wait 12 seconds",
+        "",
+        "# Request 2 - stale but served (look for STALE status)",
+        "curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status\\|age'",
+        "",
+        "# Request 3 - revalidated cache",
+        "curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status'"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "Query String Handling",
+      "description": "Demonstrates how query strings affect cache keys and how to ignore them with cache rules",
+      "endpoint": "/test-query/test1.jpg",
+      "behavior": "Tests different query string variations",
+      "expected": "Before rule: Each query string = separate cache entry. After rule: Ignored params share cache",
+      "prerequisites": [
+        "Create cache rule to ignore 'debug' parameter (optional)"
+      ],
+      "commands": [
+        "# Before Cache Rule",
+        "curl -sI \"https://YOUR_DOMAIN/test-query/test1.jpg?v=1\" | grep cf-cache-status",
+        "curl -sI \"https://YOUR_DOMAIN/test-query/test1.jpg?v=1\" | grep cf-cache-status",
+        "",
+        "# Different version = different cache key",
+        "curl -sI \"https://YOUR_DOMAIN/test-query/test1.jpg?v=2\" | grep cf-cache-status",
+        "",
+        "# After Cache Rule (purge cache first): ignore 'debug' parameter",
+        "curl -sI \"https://YOUR_DOMAIN/test-query/test1.jpg?debug=true\" | grep cf-cache-status",
+        "curl -sI \"https://YOUR_DOMAIN/test-query/test1.jpg?debug=false\" | grep cf-cache-status",
+        "curl -sI \"https://YOUR_DOMAIN/test-query/test1.jpg\" | grep cf-cache-status",
+        "",
+        "# All three should share same cache (debug ignored)"
       ]
     }
   ]

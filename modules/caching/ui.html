@@ -1,7 +1,34 @@
 <div class="module-header">
     <h1>⚡ Cloudflare Caching Demos</h1>
-    <p>Learn Cloudflare caching behavior through 11 comprehensive tests</p>
+    <p>Learn Cloudflare caching behavior through 17 comprehensive tests</p>
     <a href="https://developers.cloudflare.com/cache/about/cache-control/" target="_blank" class="docs-link">📚 Official Docs</a>
+</div>
+
+<!-- Progress Tracker -->
+<div class="progress-tracker">
+    <div class="progress-header">
+        <h3>Your Progress</h3>
+        <span class="progress-text" id="progress-text">0 of 17 tasks completed (0%)</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+    <button class="btn-reset" onclick="resetProgress()">Reset Progress</button>
+</div>
+
+<!-- Cache Status Legend -->
+<div class="cache-status-legend">
+    <h4>Cache Status Reference</h4>
+    <div class="status-grid">
+        <span class="status-badge status-miss">MISS</span> First request from origin
+        <span class="status-badge status-hit">HIT</span> Served from cache
+        <span class="status-badge status-bypass">BYPASS</span> Intentionally not cached
+        <span class="status-badge status-revalidated">REVALIDATED</span> Checked with origin
+        <span class="status-badge status-expired">EXPIRED</span> Cache expired
+        <span class="status-badge status-stale">STALE</span> Serving stale content
+        <span class="status-badge status-dynamic">DYNAMIC</span> Not eligible for cache
+        <span class="status-badge status-updating">UPDATING</span> Currently updating
+    </div>
 </div>
 
 <div class="module-wrapper">
@@ -23,6 +50,11 @@
             <li><a href="#task-10">Task 10: Validate Fix</a></li>
             <li><a href="#task-11">Task 11: DYNAMIC Status</a></li>
             <li><a href="#task-12">Task 12: Image Resizing</a></li>
+            <li><a href="#task-13">Task 13: Cache-Tags</a></li>
+            <li><a href="#task-14">Task 14: Vary Header</a></li>
+            <li><a href="#task-15">Task 15: Browser vs Edge TTL</a></li>
+            <li><a href="#task-16">Task 16: Stale-While-Revalidate</a></li>
+            <li><a href="#task-17">Task 17: Query String</a></li>
         </ul>
     </aside>
 
@@ -66,7 +98,12 @@
         </div>
 
         <div class="test-section" id="task-1">
-            <h2>Task 1: Test Default Cache (No Headers)</h2>
+            <div class="task-header">
+                <h2>Task 1: Test Default Cache (No Headers)</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <p>Tests Cloudflare's default behavior for a standard cacheable file (.jpg) when origin sends no Cache-Control.</p>
             <p><strong>Endpoint:</strong> <span class="endpoint">/test-no-header/public.jpg</span></p>
             <p><strong>Behavior:</strong> Origin sends NO Cache-Control header</p>
@@ -87,7 +124,8 @@
             
             <h3>Curl Command:</h3>
             <div class="curl-command">
-curl -sIL https://YOUR_DOMAIN/test-no-header/public.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
+                <pre>curl -sIL https://YOUR_DOMAIN/test-no-header/public.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
             <p><strong>What to observe:</strong></p>
             <ul>
@@ -98,7 +136,12 @@ curl -sIL https://YOUR_DOMAIN/test-no-header/public.jpg | grep -i 'HTTP/\|cf-cac
         </div>
 
         <div class="test-section" id="task-2">
-            <h2>Task 2: Test Default 404 Cache</h2>
+            <div class="task-header">
+                <h2>Task 2: Test Default 404 Cache</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <p>Tests Cloudflare's default behavior for 404 errors.</p>
             <p><strong>Endpoint:</strong> <span class="endpoint">/test-404.jpg</span> (file doesn't exist)</p>
             <div class="expected-behavior">
@@ -116,7 +159,8 @@ curl -sIL https://YOUR_DOMAIN/test-no-header/public.jpg | grep -i 'HTTP/\|cf-cac
             
             <h3>Curl Command:</h3>
             <div class="curl-command">
-curl -sIL https://YOUR_DOMAIN/test-404.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'
+                <pre>curl -sIL https://YOUR_DOMAIN/test-404.jpg | grep -i 'HTTP/\|cf-cache-status\|cache-control'</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
             <p><strong>What to observe:</strong></p>
             <ul>
@@ -127,7 +171,12 @@ curl -sIL https://YOUR_DOMAIN/test-404.jpg | grep -i 'HTTP/\|cf-cache-status\|ca
         </div>
 
         <div class="test-section" id="task-3">
-            <h2>Task 3: Observe Ignored Origin TTL</h2>
+            <div class="task-header">
+                <h2>Task 3: Observe Ignored Origin TTL</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <p>Origin sends <code>Cache-Control: max-age=600</code> (10 minutes).</p>
             <p><strong>Endpoint:</strong> <span class="endpoint">/test-public/test1.jpg</span></p>
             <div class="warning">
@@ -156,7 +205,12 @@ curl -sIL https://YOUR_DOMAIN/test-public/test1.jpg | grep -i 'HTTP/\|cf-cache-s
         </div>
 
         <div class="test-section" id="task-4">
-            <h2>Task 4: Observe Ignored 'private' Header</h2>
+            <div class="task-header">
+                <h2>Task 4: Observe Ignored 'private' Header</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <p>Origin sends <code>Cache-Control: private</code>.</p>
             <p><strong>Endpoint:</strong> <span class="endpoint">/test-private/test3.jpg</span></p>
             <div class="warning">
@@ -185,7 +239,12 @@ curl -sIL https://YOUR_DOMAIN/test-private/test3.jpg | grep -i 'HTTP/\|cf-cache-
         </div>
 
         <div class="test-section" id="task-5">
-            <h2>Task 5: Observe Ignored 'Set-Cookie' Header</h2>
+            <div class="task-header">
+                <h2>Task 5: Observe Ignored 'Set-Cookie' Header</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <p>Origin sends a <code>Set-Cookie</code> header in the response.</p>
             <p><strong>Endpoint:</strong> <span class="endpoint">/test-set-cookie/test1.jpg</span></p>
             <div class="warning">
@@ -214,7 +273,12 @@ curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\|cf-cac
         </div>
 
         <div class="test-section" id="task-6">
-            <h2>Task 6: Create "Origin Cache Control" Rule</h2>
+            <div class="task-header">
+                <h2>Task 6: Create "Origin Cache Control" Rule</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <div class="dashboard-instruction">
                 <strong>Dashboard Action Required:</strong>
                 <ol>
@@ -236,7 +300,12 @@ curl -sIL https://YOUR_DOMAIN/test-set-cookie/test1.jpg | grep -i 'HTTP/\|cf-cac
         </div>
 
         <div class="test-section" id="task-7">
-            <h2>Task 7: Validate "Origin Cache Control" Fix</h2>
+            <div class="task-header">
+                <h2>Task 7: Validate "Origin Cache Control" Fix</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <p>Now that Origin Cache Control is enabled, re-run the failed tests. They should now work correctly.</p>
 
             <h3>1. Validate Origin TTL (Task 3)</h3>
@@ -331,7 +400,12 @@ curl -sIL https://YOUR_DOMAIN/test-s-maxage/test5.jpg | grep -i 'HTTP/\|cf-cache
         </div>
 
         <div class="test-section" id="task-8">
-            <h2>Task 8: Discover Cache Poisoning Flaw</h2>
+            <div class="task-header">
+                <h2>Task 8: Discover Cache Poisoning Flaw</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <div class="warning">
                 <strong>⚠️ SECURITY VULNERABILITY DEMONSTRATION</strong>
             </div>
@@ -375,7 +449,12 @@ curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-c
         </div>
 
         <div class="test-section" id="task-9">
-            <h2>Task 9: Create "Cache Key" Rule</h2>
+            <div class="task-header">
+                <h2>Task 9: Create "Cache Key" Rule</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <div class="dashboard-instruction">
                 <strong>Dashboard Action Required:</strong>
                 <ol>
@@ -400,7 +479,12 @@ curl -sIL https://YOUR_DOMAIN/test-cookie-auth/secret.jpg | grep -i 'HTTP/\|cf-c
         </div>
 
         <div class="test-section" id="task-10">
-            <h2>Task 10: Validate Cache Key Fix</h2>
+            <div class="task-header">
+                <h2>Task 10: Validate Cache Key Fix</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <p>With the Cache Key rule in place, the vulnerability should be fixed.</p>
 
             <h3>1. Test Unauthenticated (Now Secure)</h3>
@@ -421,41 +505,477 @@ curl -sIL --cookie "auth_token=my_secret_value" https://YOUR_DOMAIN/test-cookie-
         </div>
 
         <div class="test-section" id="task-11">
-            <h2>Task 11: Test for 'DYNAMIC' Status</h2>
-            <p><code>DYNAMIC</code> is for files Cloudflare doesn't consider cacheable and aren't forced by a rule.</p>
-            <p><strong>Endpoint:</strong> <span class="endpoint">/test-dynamic-file</span></p>
-            <p><strong>Behavior:</strong> File that CF doesn't consider cacheable</p>
-            <div class="expected-behavior">
-                <strong>Expected:</strong> <code>CF-Cache-Status: DYNAMIC</code>
+            <div class="task-header">
+                <h2>Task 11: Test for 'DYNAMIC' Status</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
             </div>
-            
+            <p><code>DYNAMIC</code> is for files Cloudflare doesn't consider cacheable by default (like HTML files).</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-dynamic-file</span></p>
+            <p><strong>Behavior:</strong> HTML file with no Cache-Control header</p>
+            <div class="expected-behavior">
+                <strong>Expected:</strong> <code>CF-Cache-Status: DYNAMIC</code> (not cacheable)
+            </div>
+
+            <div class="why-matters">
+                <div class="why-header">💡 Why This Matters</div>
+                <div class="why-content">
+                    <p>
+                        HTML is not in Cloudflare's default cacheable file list. This means HTML files return <code>DYNAMIC</code> status by default,
+                        even without any cache-control headers. Understanding which file types are cacheable by default helps you
+                        configure caching correctly.
+                    </p>
+                    <h4>Default Cacheable File Types:</h4>
+                    <ul>
+                        <li>Images: jpg, png, gif, webp, ico, svg</li>
+                        <li>Fonts: woff, woff2, ttf, eot, otf</li>
+                        <li>Media: mp4, ogg, ogv, webm, ico, cur</li>
+                        <li>Documents: pdf, swf</li>
+                    </ul>
+                    <h4>Not Cacheable by Default:</h4>
+                    <ul>
+                        <li>HTML, PHP, ASP, JSP</li>
+                        <li>CSS, JS (unless cached via rule)</li>
+                        <li>XML, JSON, RSS feeds</li>
+                    </ul>
+                    <div class="cost-impact">
+                        <strong>💰 Impact:</strong> To cache HTML files (essential for static site generators like Next.js, Hugo), you must
+                        create a Cache Rule setting them as "Eligible for cache".
+                    </div>
+                </div>
+            </div>
+
             <h3>Origin Server Configuration (nginx)</h3>
             <div class="nginx-config">
                 <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
                 <pre><span class="keyword">location</span> <span class="directive">/test-dynamic-file</span> {
-    <span class="directive">default_type</span> <span class="value">text/plain</span>;
-    <span class="directive">add_header</span> <span class="value">Cache-Control "no-cache"</span>;
-    <span class="directive">return</span> <span class="value">200 "This is a dynamic file\n"</span>;
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/dynamic-page.html</span>;
+    <span class="directive">default_type</span> <span class="value">text/html</span>;
+    <span class="comment"># No Cache-Control header - HTML is not in CF's default cacheable list</span>
 }</pre>
             </div>
-            
+
             <h3>Curl Command:</h3>
             <div class="curl-command">
-curl -sIL https://YOUR_DOMAIN/test-dynamic-file | grep -i 'HTTP/\|cf-cache-status\|cache-control'
+                <pre>curl -sIL https://YOUR_DOMAIN/test-dynamic-file | grep -i 'HTTP/\|cf-cache-status\|cache-control'</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
             </div>
             <p><strong>What to observe:</strong></p>
             <ul>
                 <li>Response shows <code>cf-cache-status: DYNAMIC</code></li>
-                <li>This indicates Cloudflare doesn't cache the file</li>
-                <li>Useful for dynamic content that shouldn't be cached</li>
+                <li>This indicates Cloudflare doesn't consider HTML cacheable by default</li>
+                <li>No caching occurs - each request goes to origin</li>
             </ul>
         </div>
 
         <div class="test-section" id="task-12">
-            <h2>Task 12: Practice Image Resizing</h2>
+            <div class="task-header">
+                <h2>Task 12: Practice Image Resizing</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
             <div class="dashboard-instruction">
                 <strong>Prerequisite:</strong> Enable transformations in dashboard: Media > Images > Transformations > Enable
             </div>
+
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-resize/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public"</span>;
+}</pre>
+            </div>
+
+            <h3>1. Baseline Test (Original)</h3>
+            <p>Check the original image size and status.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-resize/resize-me.jpg</span></p>
+            <div class="curl-command">
+                <pre>curl -sIL https://YOUR_DOMAIN/test-resize/resize-me.jpg | grep -i 'HTTP/\|content-length\|content-type'</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+            <p>Note <code>Content-Length</code> for comparison.</p>
+
+            <h3>2. Resize Test (Transformed)</h3>
+            <p>Request the resized version with width=100 and quality=10.</p>
+            <div class="curl-command">
+                <pre>curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/resize-me.jpg | grep -i 'HTTP/\|content-length\|content-type'</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+            <div class="success">
+                <strong>✅ Success:</strong> You should see a smaller Content-Length compared to the baseline. Cloudflare transformed the image on-the-fly!
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li><code>Content-Type: image/jpeg</code> (unchanged)</li>
+                <li><code>Content-Length</code> is significantly smaller</li>
+                <li>Image is resized to 100px width with quality 10</li>
+                <li>The transformation URL format: <code>/cdn-cgi/image/width=100,quality=10/PATH</code></li>
+            </ul>
+        </div>
+
+        <div class="test-section" id="task-13">
+            <div class="task-header">
+                <h2>Task 13: Cache-Tags (Selective Purging)</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
+            <p>Demonstrates selective cache purging using Cache-Tags.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-cache-tags/product-123.jpg</span></p>
+            <p><strong>Behavior:</strong> Response includes <code>Cache-Tag: product-123, category-shoes</code></p>
+            <div class="expected-behavior">
+                <strong>Expected:</strong> 1st request = MISS, 2nd request = HIT. After purging tag 'product-123': MISS again
+            </div>
+
+            <div class="why-matters">
+                <div class="why-header">💡 Why This Matters</div>
+                <div class="why-content">
+                    <p>
+                        Cache-Tags enable selective purging of cached content. Instead of purging the entire cache when updating a single product,
+                        you can purge only that product's tag. This dramatically reduces origin load and improves performance.
+                    </p>
+                    <h4>Real-World Example:</h4>
+                    <ul>
+                        <li><strong>E-commerce:</strong> Amazon updates product prices frequently. Using cache tags, they purge just the updated
+                            product pages while keeping millions of other pages cached.</li>
+                        <li><strong>News sites:</strong> When updating an article, purge only that article's tag, not the entire site.</li>
+                    </ul>
+                    <div class="cost-impact">
+                        <strong>💰 Cost Impact:</strong> Without selective purging, you might need to purge "Everything" every time
+                        content changes, causing cache misses for 100% of traffic. With cache tags, you maintain 99%+ cache hit ratio.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-cache-tags/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, max-age=3600"</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Tag "product-123, category-shoes"</span>;
+}</pre>
+            </div>
+
+            <h3>Dashboard Steps (After Testing):</h3>
+            <div class="dashboard-instruction">
+                <ol>
+                    <li>Go to Cloudflare Dashboard > Caching > Configuration</li>
+                    <li>Click "Purge by Tag"</li>
+                    <li>Enter tag: <code>product-123</code></li>
+                    <li>Click "Purge Tag"</li>
+                    <li>Test endpoint again - should be MISS</li>
+                </ol>
+            </div>
+
+            <h3>Test Commands:</h3>
+            <div class="curl-command">
+                <pre># Initial request
+curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cache-tag\|cf-cache-status'
+
+# Second request (HIT)
+curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cf-cache-status'
+
+# After purging tag via Dashboard (Caching > Configuration > Purge by Tag)
+curl -sIL https://YOUR_DOMAIN/test-cache-tags/product-123.jpg | grep -i 'cf-cache-status'</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+        </div>
+
+        <div class="test-section" id="task-14">
+            <div class="task-header">
+                <h2>Task 14: Vary Header (Cache Key Variations)</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
+            <p>Understands how Vary header creates separate cache entries based on request headers.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-vary/compressed.txt</span></p>
+            <p><strong>Behavior:</strong> Response includes <code>Vary: Accept-Encoding</code> header</p>
+            <div class="expected-behavior">
+                <strong>Expected:</strong> Different <code>Accept-Encoding</code> values create separate cache entries
+            </div>
+
+            <div class="why-matters">
+                <div class="why-header">💡 Why This Matters</div>
+                <div class="why-content">
+                    <p>
+                        The Vary header tells Cloudflare to create separate cache entries based on the value of specified request headers.
+                        This is useful for compression (serving different encodings) but can also cause cache fragmentation.
+                    </p>
+                    <h4>Cache Fragmentation Analysis:</h4>
+                    <ul>
+                        <li><strong>1 Vary header</strong> (Accept-Encoding): 3 cache entries (gzip, br, none)</li>
+                        <li><strong>2 Vary headers</strong> (+ Accept-Language): 15 cache entries (3 × 5)</li>
+                        <li><strong>3 Vary headers</strong> (+ User-Agent): 45 cache entries (3 × 5 × 3)</li>
+                    </ul>
+                    <p>More Vary headers = exponential cache fragmentation = lower cache hit ratio!</p>
+                    <h4>Best Practice:</h4>
+                    <p>
+                        Use Vary sparingly. For multiple variations (like languages), consider URL-based routing instead
+                        (<code>/en/</code>, <code>/es/</code> vs <code>Vary: Accept-Language</code>).
+                    </p>
+                </div>
+            </div>
+
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-vary/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, max-age=3600"</span>;
+    <span class="directive">add_header</span> <span class="value">Vary "Accept-Encoding"</span>;
+    <span class="keyword">gzip</span> <span class="value">on</span>;
+    <span class="keyword">gzip_types</span> <span class="value">text/plain</span>;
+}</pre>
+            </div>
+
+            <h3>Test Commands:</h3>
+            <div class="curl-command">
+                <pre># Request 1 - gzip
+curl -sI -H "Accept-Encoding: gzip" https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status\|content-encoding\|vary'
+
+# Request 2 - brotli
+curl -sI -H "Accept-Encoding: br" https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status\|content-encoding\|vary'
+
+# Request 3 - no compression
+curl -sI https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status\|vary'
+
+# Repeat request 1 - should be HIT now
+curl -sI -H "Accept-Encoding: gzip" https://YOUR_DOMAIN/test-vary/compressed.txt | grep -i 'cf-cache-status'</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li>Each different <code>Accept-Encoding</code> value creates a separate cache entry</li>
+                <li>Repeating same encoding returns <code>HIT</code></li>
+                <li>Different encoding returns <code>MISS</code> (different cache key)</li>
+            </ul>
+        </div>
+
+        <div class="test-section" id="task-15">
+            <div class="task-header">
+                <h2>Task 15: Browser vs Edge TTL</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
+            <p>Demonstrates the difference between browser caching and edge caching.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-browser-edge-ttl/asset.js</span></p>
+            <p><strong>Behavior:</strong> Origin sends <code>Cache-Control: public, max-age=300, s-maxage=3600</code></p>
+            <div class="expected-behavior">
+                <strong>Expected:</strong> Browser caches for 5 minutes, Cloudflare edge caches for 1 hour
+            </div>
+
+            <div class="why-matters">
+                <div class="why-header">💡 Why This Matters</div>
+                <div class="why-content">
+                    <p>
+                        Understanding the difference between <code>max-age</code> (browser cache) and <code>s-maxage</code> (edge cache)
+                        is critical for performance optimization and deployment strategies.
+                    </p>
+                    <h4>Visual Diagram:</h4>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; font-size: 12px;">
+Browser → [5min cache] → Cloudflare Edge → [1hr cache] → Origin
+   │                           │
+   └─ Requests every 5min      └─ Requests every 1hr
+
+Result: Origin sees 12x fewer requests than without edge cache
+                    </pre>
+                    <h4>Real-World Example:</h4>
+                    <p>
+                        JavaScript bundles that change frequently: 5min browser cache allows quick deployments,
+                        1hr edge cache reduces origin load during traffic spikes.
+                    </p>
+                    <div class="cost-impact">
+                        <strong>💰 Cost Impact:</strong> Without edge caching, every browser request hits your origin during traffic spikes.
+                        With proper s-maxage, Cloudflare absorbs 99%+ of traffic, saving origin bandwidth and compute costs.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-browser-edge-ttl/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, max-age=300, s-maxage=3600"</span>;
+}</pre>
+            </div>
+
+            <h3>Test Commands:</h3>
+            <div class="curl-command">
+                <pre># First request
+curl -sI https://YOUR_DOMAIN/test-browser-edge-ttl/asset.js | grep -i 'cache-control\|cf-cache-status'
+
+# Expected output:
+# cache-control: public, max-age=300, s-maxage=3600
+# cf-cache-status: MISS
+
+# Second request (within 1 hour)
+curl -sI https://YOUR_DOMAIN/test-browser-edge-ttl/asset.js | grep -i 'cache-control\|cf-cache-status\|age'
+
+# Expected output:
+# cache-control: public, max-age=300, s-maxage=3600
+# cf-cache-status: HIT
+# age: [seconds since cached]</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li><code>max-age=300</code> tells browser to cache for 5 minutes</li>
+                <li><code>s-maxage=3600</code> tells Cloudflare edge to cache for 1 hour</li>
+                <li>After 1 hour, Cloudflare revalidates with origin (but browsers may still use 5min cache)</li>
+            </ul>
+        </div>
+
+        <div class="test-section" id="task-16">
+            <div class="task-header">
+                <h2>Task 16: Stale-While-Revalidate</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
+            <p>Demonstrates serving stale content while background revalidation happens.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-swr/data.json</span></p>
+            <p><strong>Behavior:</strong> Origin sends <code>Cache-Control: public, max-age=10, stale-while-revalidate=60</code></p>
+            <div class="expected-behavior">
+                <strong>Expected:</strong> First 10 seconds: HIT, After 10s: STALE (served while revalidating)
+            </div>
+
+            <div class="why-matters">
+                <div class="why-header">💡 Why This Matters</div>
+                <div class="why-content">
+                    <p>
+                        Stale-While-Revalidate (SWR) improves perceived performance by serving stale content instantly while
+                        fetching fresh content in the background. Users never wait for slow origins.
+                    </p>
+                    <h4>Timeline:</h4>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; font-size: 12px;">
+0-10s:    Fresh cache - HIT (instant)
+10-70s:   Stale cache - STALE (instant, background fetch)
+70s+:     Expired - MISS or REVALIDATED
+                    </pre>
+                    <h4>Real-World Example:</h4>
+                    <ul>
+                        <li><strong>News sites:</strong> Expensive database queries can serve slightly stale content while background-updating,
+                            ensuring fast page loads even during traffic spikes.</li>
+                        <li><strong>API responses:</strong> Serve cached API responses while background-refreshing, reducing latency for users.</li>
+                    </ul>
+                    <div class="cost-impact">
+                        <strong>💰 Cost Impact:</strong> SWR maintains 100% cache hit ratio (no MISS), improving performance
+                        while still allowing content freshness. Users never experience slow origin responses.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-swr/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, max-age=10, stale-while-revalidate=60"</span>;
+}</pre>
+            </div>
+
+            <h3>Test Commands:</h3>
+            <div class="curl-command">
+                <pre># Request 1 - fresh cache
+curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status\|cache-control\|age'
+
+# Wait 12 seconds
+
+# Request 2 - stale but served (look for STALE status)
+curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status\|age'
+
+# Request 3 - revalidated cache
+curl -sI https://YOUR_DOMAIN/test-swr/data.json | grep -i 'cf-cache-status'</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li>First 10 seconds: Response is <code>HIT</code> (fresh)</li>
+                <li>After 10 seconds: Response is <code>STALE</code> (served while revalidating)</li>
+                <li>User gets instant response even though cache is stale</li>
+            </ul>
+        </div>
+
+        <div class="test-section" id="task-17">
+            <div class="task-header">
+                <h2>Task 17: Query String Handling</h2>
+                <label class="checkbox-container">
+                    <input type="checkbox" onchange="updateProgress()"> Mark as complete
+                </label>
+            </div>
+            <p>Demonstrates how query strings affect cache keys and how to ignore them with cache rules.</p>
+            <p><strong>Endpoint:</strong> <span class="endpoint">/test-query/test1.jpg</span></p>
+            <p><strong>Behavior:</strong> Tests different query string variations</p>
+            <div class="expected-behavior">
+                <strong>Expected:</strong> Before rule: Each query string = separate cache entry. After rule: Ignored params share cache
+            </div>
+
+            <div class="why-matters">
+                <div class="why-header">💡 Why This Matters</div>
+                <div class="why-content">
+                    <p>
+                        Query strings are included in cache keys by default. This means <code>page.html?v=1</code> and
+                        <code>page.html?v=2</code> have separate cache entries. For tracking parameters (like <code>?utm_source=...</code>),
+                        this fragments cache unnecessarily.
+                    </p>
+                    <h4>Real-World Example:</h4>
+                    <p>
+                        Marketing campaigns add <code>?utm_source=email&utm_campaign=spring2024</code> to all links. Without ignoring
+                        these parameters, the same page has dozens of cache entries, wasting cache space and reducing hit ratio.
+                    </p>
+                    <h4>Dashboard Configuration (Optional):</h4>
+                    <p>Create Cache Rule to ignore certain parameters:</p>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; font-size: 12px;">
+When: URI Path contains "/test-query/"
+Then: Cache Key → Custom → Query String → Include all except "debug"
+                    </pre>
+                    <div class="cost-impact">
+                        <strong>💰 Cost Impact:</strong> Ignoring tracking parameters can improve cache hit ratio from 60% to 95%,
+                        dramatically reducing origin load and bandwidth costs.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Origin Server Configuration (nginx)</h3>
+            <div class="nginx-config">
+                <div class="nginx-config-title">/etc/nginx/conf.d/caching.conf</div>
+                <pre><span class="keyword">location</span> <span class="directive">/test-query/</span> {
+    <span class="directive">alias</span> <span class="value">/usr/share/nginx/html/test-files/modules/caching/</span>;
+    <span class="directive">add_header</span> <span class="value">Cache-Control "public, max-age=3600"</span>;
+}</pre>
+            </div>
+
+            <h3>Test Commands:</h3>
+            <div class="curl-command">
+                <pre># Before Cache Rule
+curl -sI "https://YOUR_DOMAIN/test-query/test1.jpg?v=1" | grep cf-cache-status
+curl -sI "https://YOUR_DOMAIN/test-query/test1.jpg?v=1" | grep cf-cache-status
+
+# Different version = different cache key
+curl -sI "https://YOUR_DOMAIN/test-query/test1.jpg?v=2" | grep cf-cache-status
+
+# After Cache Rule (purge cache first): ignore 'debug' parameter
+curl -sI "https://YOUR_DOMAIN/test-query/test1.jpg?debug=true" | grep cf-cache-status
+curl -sI "https://YOUR_DOMAIN/test-query/test1.jpg?debug=false" | grep cf-cache-status
+curl -sI "https://YOUR_DOMAIN/test-query/test1.jpg" | grep cf-cache-status
+
+# All three should share same cache (debug ignored)</pre>
+                <button class="copy-btn" onclick="copyCommand(this)" title="Copy to clipboard">📋 Copy</button>
+            </div>
+            <p><strong>What to observe:</strong></p>
+            <ul>
+                <li>Without cache rule: Each query string variation creates separate cache entry</li>
+                <li>With cache rule ignoring 'debug': Different debug values share same cache entry</li>
+                <li>This dramatically improves cache efficiency</li>
+            </ul>
+        </div>
             
             <h3>Origin Server Configuration (nginx)</h3>
             <div class="nginx-config">
@@ -499,8 +1019,13 @@ curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/res
                 <li>Fixed them with Origin Cache Control rule</li>
                 <li>Secured cookie-based caching with Cache Key rule</li>
                 <li>Practiced Image Resizing transformations</li>
+                <li>Cache-Tags for selective purging</li>
+                <li>Vary header behavior and cache key variations</li>
+                <li>Browser vs Edge TTL optimization</li>
+                <li>Stale-While-Revalidate for performance</li>
+                <li>Query string handling and cache efficiency</li>
             </ul>
-            <p>You now have a deep understanding of how Cloudflare caching works and how to configure it correctly.</p>
+            <p>You now have a comprehensive understanding of Cloudflare caching and how to configure it correctly for production scenarios.</p>
         </div>
     </div>
 </div>
@@ -509,19 +1034,19 @@ curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/res
 (function() {
     const currentHostname = window.location.hostname;
     console.log('Domain replacement: Replacing YOUR_DOMAIN with', currentHostname);
-    const domainElements = document.querySelectorAll('.curl-command');
-    console.log('Found', domainElements.length, 'curl-command elements');
 
-    domainElements.forEach((element, index) => {
+    // Replace YOUR_DOMAIN in curl commands
+    const curlCommands = document.querySelectorAll('.curl-command pre');
+    curlCommands.forEach((element, index) => {
         const oldContent = element.textContent;
         element.textContent = oldContent.replace(/YOUR_DOMAIN/g, currentHostname);
         console.log('Replaced in element', index, ':', oldContent.includes('YOUR_DOMAIN') ? 'YES' : 'NO');
     });
-    
+
     // Highlight active navigation link
     const sections = document.querySelectorAll('.test-section[id]');
     const navLinks = document.querySelectorAll('.sidebar-nav a');
-    
+
     window.addEventListener('scroll', () => {
         let current = '';
         sections.forEach(section => {
@@ -530,7 +1055,7 @@ curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/res
                 current = section.getAttribute('id');
             }
         });
-        
+
         navLinks.forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('href') === '#' + current) {
@@ -539,4 +1064,61 @@ curl -sIL https://YOUR_DOMAIN/cdn-cgi/image/width=100,quality=10/test-resize/res
         });
     });
 })();
+
+// Copy command function
+function copyCommand(btn) {
+    const pre = btn.previousElementSibling;
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => {
+            btn.textContent = '📋 Copy';
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        btn.textContent = '❌ Failed';
+        setTimeout(() => {
+            btn.textContent = '📋 Copy';
+        }, 2000);
+    });
+}
+
+// Progress tracking functions
+function updateProgress() {
+    const checkboxes = document.querySelectorAll('.test-section input[type="checkbox"]');
+    const total = checkboxes.length;
+    const completed = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const percentage = Math.round((completed / total) * 100);
+
+    document.getElementById('progress-text').textContent =
+        `${completed} of ${total} tasks completed (${percentage}%)`;
+    document.getElementById('progress-fill').style.width = `${percentage}%`;
+
+    // Save to localStorage
+    const completedTasks = Array.from(checkboxes).map(cb => cb.checked);
+    localStorage.setItem('caching-progress', JSON.stringify(completedTasks));
+}
+
+function resetProgress() {
+    if (confirm('Reset all progress? This cannot be undone.')) {
+        const checkboxes = document.querySelectorAll('.test-section input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+        localStorage.removeItem('caching-progress');
+        updateProgress();
+    }
+}
+
+// Load progress on page load
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('caching-progress');
+    if (saved) {
+        const completedTasks = JSON.parse(saved);
+        const checkboxes = document.querySelectorAll('.test-section input[type="checkbox"]');
+        checkboxes.forEach((cb, i) => {
+            if (completedTasks[i]) cb.checked = true;
+        });
+        updateProgress();
+    } else {
+        updateProgress();
+    }
+});
 </script>
