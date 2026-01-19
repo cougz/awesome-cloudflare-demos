@@ -285,6 +285,8 @@ body {
   padding: 30px;
   border-radius: 12px;
   margin-bottom: 30px;
+  position: relative;
+  z-index: 3;
 }
 
 .module-header h1 {
@@ -318,12 +320,17 @@ body {
    SIDEBAR NAVIGATION
    ============================================ */
 
+.main-wrapper {
+  display: flex;
+  width: 100%;
+}
+
 .module-wrapper {
   display: flex;
   gap: 20px;
   position: relative;
-  z-index: 3;
   clear: both;
+  width: 100%;
 }
 
 .sidebar {
@@ -335,8 +342,9 @@ body {
   box-shadow: var(--shadow-subtle);
   position: sticky;
   top: 20px;
-  max-height: calc(100vh - 40px);
+  height: calc(100vh - 40px);
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-title {
@@ -381,9 +389,16 @@ body {
   flex: 1;
   min-width: 0;
   width: 100%;
-  max-width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
   position: relative;
   z-index: 1;
+}
+
+.content-area {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
 }
 
 /* ============================================
@@ -456,6 +471,7 @@ body {
   font-size: 0.85em;
   overflow-x: auto;
   margin: 15px 0;
+  position: relative;
 }
 
 .nginx-config-title {
@@ -708,7 +724,7 @@ code {
   margin: 20px 0;
   box-shadow: var(--shadow-subtle);
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 .progress-header {
@@ -905,6 +921,10 @@ code {
   overflow: hidden;
 }
 
+[data-theme="dark"] .why-matters {
+  background: linear-gradient(135deg, rgba(102,126,234,0.2) 0%, rgba(118,75,162,0.2) 100%);
+}
+
 .why-header {
   background: #667eea;
   color: white;
@@ -940,6 +960,25 @@ code {
   padding: 15px;
   margin-top: 15px;
   border-radius: 4px;
+}
+
+[data-theme="dark"] .cost-impact {
+  background: rgba(255, 193, 7, 0.15);
+  border-left-color: #ffc107;
+}
+
+[data-theme="dark"] .cost-impact strong {
+  color: #ffc107;
+}
+
+/* Light pre blocks for Why Matters sections */
+.pre-light {
+  background: var(--bg-secondary);
+  padding: 15px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
 }
 
 .cost-impact strong {

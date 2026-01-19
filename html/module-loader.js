@@ -162,7 +162,9 @@ async function loadModule(moduleDir) {
         moduleContent.insertBefore(backBtn, moduleContent.firstChild);
 
         executeScripts(moduleContent);
+        addCopyButtonsToNginxConfig(moduleContent);
         replaceDomainInCurlCommands();
+        setupCopyButtons(moduleContent);
     } catch (error) {
         console.error('Error loading module:', error);
         alert('Failed to load module');
@@ -176,19 +178,166 @@ function executeScripts(container) {
         newScript.textContent = oldScript.textContent;
         oldScript.parentNode.replaceChild(newScript, oldScript);
     });
+
+    // Remove all inline onclick handlers from copy buttons
+    const copyBtns = container.querySelectorAll('.copy-btn');
+    copyBtns.forEach(btn => {
+        if (btn.hasAttribute('onclick')) {
+            btn.removeAttribute('onclick');
+        }
+    });
 }
 
 function replaceDomainInCurlCommands() {
     const currentHostname = window.location.hostname;
     console.log('Domain replacement: Replacing YOUR_DOMAIN with', currentHostname);
-    const curlElements = document.querySelectorAll('.curl-command');
-    console.log('Found', curlElements.length, 'curl-command elements');
+    const curlPres = document.querySelectorAll('.curl-command pre');
+    console.log('Found', curlPres.length, 'curl-command pre elements');
 
-    curlElements.forEach((element, index) => {
-        const oldContent = element.textContent;
-        element.textContent = oldContent.replace(/YOUR_DOMAIN/g, currentHostname);
-        console.log('Replaced in element', index, ':', oldContent.includes('YOUR_DOMAIN') ? 'YES' : 'NO');
+    curlPres.forEach((pre, index) => {
+        const oldContent = pre.textContent;
+        pre.textContent = oldContent.replace(/YOUR_DOMAIN/g, currentHostname);
+        console.log('Replaced in pre', index, ':', oldContent.includes('YOUR_DOMAIN') ? 'YES' : 'NO');
     });
+}
+
+function copyCommand(button) {
+    let pre = button.previousElementSibling;
+    if (!pre || pre.tagName !== 'PRE') {
+        pre = button.parentElement.querySelector('pre');
+    }
+    if (!pre) {
+        console.error('No <pre> element found');
+        return;
+    }
+    const text = pre.textContent.trim();
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = '✓ Copied';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        button.textContent = '✗ Failed';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 2000);
+    });
+}
+
+function addCopyButtonsToNginxConfig(container) {
+    const nginxConfigs = container.querySelectorAll('.nginx-config');
+    nginxConfigs.forEach(config => {
+        if (!config.querySelector('.copy-btn')) {
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = '📋 Copy';
+            copyBtn.title = 'Copy to clipboard';
+            copyBtn.dataset.type = 'nginx';
+            config.appendChild(copyBtn);
+        }
+    });
+}
+
+function setupCopyButtons(container) {
+    console.log('Setting up copy buttons...');
+    const copyBtns = container.querySelectorAll('.copy-btn');
+    console.log('Found copy buttons:', copyBtns.length);
+
+    copyBtns.forEach((btn, index) => {
+        if (btn.dataset.hasSetup) {
+            console.log(`Button ${index} already has setup, skipping`);
+            return;
+        }
+
+        console.log(`Setting up button ${index}`);
+
+        btn.dataset.hasSetup = 'true';
+
+        btn.addEventListener('click', (e) => {
+            console.log('Copy button clicked!');
+            e.preventDefault();
+            e.stopPropagation();
+
+            let pre;
+
+            if (btn.dataset.type === 'nginx') {
+                const config = btn.parentElement;
+                pre = config.querySelector('pre');
+                console.log('Nginx config - pre found:', !!pre);
+            } else {
+                pre = btn.previousElementSibling;
+                console.log('Curl command - pre found:', !!pre);
+            }
+
+            if (!pre) {
+                console.error('No <pre> element found for copy button');
+                return;
+            }
+
+            const text = pre.textContent.trim();
+            console.log('Text to copy:', text.substring(0, 50) + '...');
+
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Copy successful with Clipboard API!');
+                    const originalText = btn.textContent;
+                    btn.textContent = '✓ Copied';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopy(text, btn);
+                });
+            } else {
+                // Fallback for HTTP contexts
+                console.log('Clipboard API not available, using fallback');
+                fallbackCopy(text, btn);
+            }
+        });
+    });
+
+    console.log('Copy buttons setup complete');
+}
+
+function fallbackCopy(text, btn) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-999999px';
+    textarea.style.top = '-999999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+        console.log('Fallback copy successful:', successful);
+
+        if (successful) {
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copied';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        } else {
+            btn.textContent = '✗ Failed';
+            setTimeout(() => {
+                btn.textContent = '📋 Copy';
+            }, 2000);
+        }
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
+        btn.textContent = '✗ Failed';
+        setTimeout(() => {
+            btn.textContent = '📋 Copy';
+        }, 2000);
+    } finally {
+        document.body.removeChild(textarea);
+    }
 }
 
 function showModuleList() {
