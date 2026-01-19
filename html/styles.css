@@ -47,7 +47,6 @@ body {
 }
 
 .container {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -497,9 +496,6 @@ body {
   margin-bottom: 40px;
   padding-bottom: 30px;
   border-bottom: 1px solid var(--border-color);
-  position: relative;
-  z-index: 1;
-  clear: both;
 }
 
 .test-section:last-child {
@@ -713,7 +709,6 @@ code {
   box-shadow: var(--shadow-subtle);
   position: relative;
   z-index: 2;
-  clear: both;
 }
 
 .progress-header {
@@ -782,7 +777,6 @@ code {
   margin: 20px 0;
   position: relative;
   z-index: 2;
-  clear: both;
 }
 
 .cache-status-legend h4 {
